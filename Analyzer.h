@@ -26,6 +26,9 @@
 #include <iostream>
 #include "assert.h"
 
+// My files
+#include "Settings.h"
+
 using namespace std;
 
 class Analyzer {
@@ -1084,6 +1087,10 @@ public :
    Float_t _k_factor;
    Float_t _event_weight;
    Float_t _lumi;
+   Float_t _xsec;
+   
+   Float_t oldWP_VBF2j = 0.477348;
+   Float_t oldWP_VH    = 0.0375066;
    
    Float_t DVBF1j_ME;
    Float_t DVBF2j_ME;
@@ -1091,15 +1098,45 @@ public :
    Float_t DZH_ME;
    Float_t DVH_ME;
    
+   Float_t DVBF1j_ME_BSM;
+   Float_t DVBF2j_ME_BSM;
+   Float_t DWH_ME_BSM;
+   Float_t DZH_ME_BSM;
+   Float_t DVH_ME_BSM;
+   
+   Float_t D_BKG_DEC;
+   Float_t D_0MH_DEC;
+   Float_t D_0PH_DEC;
+   Float_t D_0L1_DEC;
+   Float_t D_0L1Zgs_DEC;
+   
    TFile *VBF1j_file;
    TFile *VBF2j_file;
    TFile *WH_file;
    TFile *ZH_file;
    
+   TFile *DBKG_file_4e;
+   TFile *DBKG_file_4mu;
+   TFile *DBKG_file_2e2mu;
+   
+   TFile *g_Decay_g2_file;
+   TFile *g_Decay_g4_file;
+   TFile *g_Decay_L1_file;
+   TFile *g_Decay_L1Zgs_file;
+   
    TSpline3 *VBF1j_spline;
    TSpline3 *VBF2j_spline;
    TSpline3 *WH_spline;
    TSpline3 *ZH_spline;
+   
+   TSpline3 *DBKG_spline_4e;
+   TSpline3 *DBKG_spline_4mu;
+   TSpline3 *DBKG_spline_2e2mu;
+   
+   TSpline3 *g_Decay_g2_spline;
+   TSpline3 *g_Decay_g4_spline;
+   TSpline3 *g_Decay_L1_spline;
+   TSpline3 *g_Decay_L1Zgs_spline;
 
    Analyzer(TString filename = "", Float_t lumi = 35.9);
    virtual ~Analyzer();
@@ -1107,8 +1144,9 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, TString filename);
-   virtual void     Loop(TProfile *p, TH1F *h, TH1F *h_VBF2j, TH1F *h_VH, TH2F *h2_VBF2j, TH2F* h2_VH);
-   virtual void     LoopForEff(TH1F *h_VBF2j, TH1F *h_VH);
+   virtual void     Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
+   virtual void     LoopForEff(bool shiftWP, TH1F *histos_1D[Settings::num_of_1D_hist_names]);
+   virtual void     LoopForCat(bool newArbitration, TH1F *histo);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    virtual float getDVBF2jetsConstant_old(float ZZMass);
@@ -1123,6 +1161,8 @@ public :
    virtual float getDVBF1jetWP(float ZZMass, bool useQGTagging);
    virtual float getDWHhWP(float ZZMass, bool useQGTagging);
    virtual float getDZHhWP(float ZZMass, bool useQGTagging);
+   virtual float ShiftWPfactor(float oldWP, float newWP);
+   virtual float GetDBKGcConstant(Short_t Z1Flav, Short_t Z2Flav, float ZZMass );
 };
 
 #endif

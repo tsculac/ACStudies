@@ -1,0 +1,11 @@
+*.root
+*.o
+*.exe
+Animations/
+ControlPlots/
+Categorisation
+DumpPlots
+EfficiencyVsCut
+run
+Presentation/
+*.pdf

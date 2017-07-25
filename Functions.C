@@ -64,5 +64,20 @@ TSpline3* Functions::convertGraphToSpline3_FaithfulSlopes(TGraph* tg, double* df
    return spline;
 }
 
+void Functions::ConditionalNormalisation(TH2F* h){
+   
+   for(int ix=0; ix<=h->GetNbinsX()+1; ix++)
+   {
+      double integral = h->Integral(ix,ix,0, h->GetNbinsY()+1);
+      
+      if(integral!=0.)
+      {
+         for(int iy=0;iy<=h->GetNbinsY()+1;iy++) h->SetBinContent(ix,iy,h->GetBinContent(ix,iy)/integral);
+      }
+   }
+}
+
+
+
 
 
