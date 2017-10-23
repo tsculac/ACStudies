@@ -16,6 +16,7 @@
 #include "TSpline.h"
 #include "TMultiGraph.h"
 #include "TGraphErrors.h"
+#include "TPaveLabel.h"
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TH2F.h"

@@ -12,6 +12,7 @@
 #include "TString.h"
 #include "TStyle.h"
 #include "TLegend.h"
+#include "TLine.h"
 
 
 // My own files
@@ -178,7 +179,7 @@ int main( int argc, char *argv[] )
    D0MDECVsM4l_ggH     = (TH2F*)th2f_file->Get("D0MDECVsM4l_ggH");
    D0PDECVsM4l_0PH     = (TH2F*)th2f_file->Get("D0PDECVsM4l_0PH");
    D0PDECVsM4l_ggH     = (TH2F*)th2f_file->Get("D0PDECVsM4l_ggH");
-   DL1DECVsM4l_0PL1    = (TH2F*)th2f_file->Get("DL1DECVsM4l_0PL1");
+	DL1DECVsM4l_0PL1    = (TH2F*)th2f_file->Get("DL1DECVsM4l_0PL1");
    DL1ZgsDECVsM4l_0PL1 = (TH2F*)th2f_file->Get("DL1ZgsDECVsM4l_0PL1");
    DL1DECVsM4l_ggH     = (TH2F*)th2f_file->Get("DL1DECVsM4l_ggH");
    DL1ZgsDECVsM4l_ggH  = (TH2F*)th2f_file->Get("DL1ZgsDECVsM4l_ggH");
@@ -230,6 +231,7 @@ int main( int argc, char *argv[] )
    
    TH1D *h_temp,*b_temp;
    TH1 *frame;
+	TLine *tmp_line = new TLine(1,1,1,1);//hack for TLegend
    
    if(plotDBKGcheck)
    {
@@ -250,6 +252,7 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{bkg}^{dec}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
          
          TLegend *legD = new TLegend(0.65, 0.75, 0.90, 0.90);
@@ -281,7 +284,16 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{2jets}^{VBF}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
+			
+			TLegend *legVBF = new TLegend(0.65, 0.75, 0.90, 0.90);
+			tmp_line->SetLineColor(kRed);
+			tmp_line->SetLineStyle(1);
+			legVBF->AddEntry(tmp_line,"VBF","l");//I have no idea why this works?
+			legVBF->AddEntry(b_temp,"ggH","l");
+			legVBF->Draw();
+			
          if( i < 10 ) c1->SaveAs(("Animations/Djj_0"+to_string(i)+".png").c_str());
          else c1->SaveAs(("Animations/Djj_"+to_string(i)+".png").c_str());
          
@@ -307,7 +319,16 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{2jets}^{VH}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
+			
+			TLegend *legZH = new TLegend(0.65, 0.75, 0.90, 0.90);
+			tmp_line->SetLineColor(kYellow);
+			tmp_line->SetLineStyle(1);
+			legZH->AddEntry(tmp_line,"ZH","l");//I have no idea why this works?
+			legZH->AddEntry(b_temp,"ggH","l");
+			legZH->Draw();
+			
          if( i < 10 ) c1->SaveAs(("Animations/DVH_ZH_0"+to_string(i)+".png").c_str());
          else c1->SaveAs(("Animations/DVH_ZH_"+to_string(i)+".png").c_str());
          
@@ -334,6 +355,15 @@ int main( int argc, char *argv[] )
          
          gStyle->SetOptStat(0);
          frame->GetXaxis()->SetTitle("D_{2jets}^{VH}");
+			frame->GetYaxis()->SetTitle("a.u.");
+			
+			TLegend *legWH = new TLegend(0.65, 0.75, 0.90, 0.90);
+			tmp_line->SetLineColor(kBlue);
+			tmp_line->SetLineStyle(1);
+			legWH->AddEntry(tmp_line,"WH","l");//I have no idea why this works?
+			legWH->AddEntry(b_temp,"ggH","l");
+			legWH->Draw();
+			
          if ( i < 10) c1->SaveAs(("Animations/DVH_WH_0"+to_string(i)+".png").c_str());
          else c1->SaveAs(("Animations/DVH_WH_"+to_string(i)+".png").c_str());
          
@@ -359,10 +389,11 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{bkg}^{dec}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
          
          TLegend *legD = new TLegend(0.65, 0.75, 0.90, 0.90);
-         legD->AddEntry(h_temp,"ggH","l");
+         legD->AddEntry("h_temp","ggH","l");//I have no idea why this works?
          legD->AddEntry(b_temp,"qqZZ","l");
          legD->Draw();
          
@@ -393,10 +424,13 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{0-}^{dec}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
          TLegend *leg0M = new TLegend(0.65, 0.75, 0.90, 0.90);
-         leg0M->AddEntry(h_temp,"SM ggH","l");
-         leg0M->AddEntry(b_temp,"f_{a3} = 1","l");
+			tmp_line->SetLineColor(kBlack);
+			tmp_line->SetLineStyle(2);
+			leg0M->AddEntry(tmp_line,"f_{a3} = 1","l");
+			leg0M->AddEntry(b_temp,"SM ggH","l");
          leg0M->Draw();
          if( i < 10 ) c1->SaveAs(("Animations/D0M_0"+to_string(i)+".png").c_str());
          else c1->SaveAs(("Animations/D0M_"+to_string(i)+".png").c_str());
@@ -425,10 +459,13 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{0h+}^{dec}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
          TLegend *leg0P = new TLegend(0.65, 0.75, 0.90, 0.90);
-         leg0P->AddEntry(h_temp,"SM ggH","l");
-         leg0P->AddEntry(b_temp,"f_{a2} = 1","l");
+			tmp_line->SetLineColor(kBlack);
+			tmp_line->SetLineStyle(2);
+         leg0P->AddEntry(b_temp,"SM ggH","l");
+         leg0P->AddEntry(tmp_line,"f_{a2} = 1","l");
          leg0P->Draw();
          if( i < 10 ) c1->SaveAs(("Animations/D0P_0"+to_string(i)+".png").c_str());
          else c1->SaveAs(("Animations/D0P_"+to_string(i)+".png").c_str());
@@ -456,10 +493,13 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{#Lambda1}^{dec}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
          TLegend *leg0P = new TLegend(0.65, 0.75, 0.90, 0.90);
-         leg0P->AddEntry(h_temp,"SM ggH","l");
-         leg0P->AddEntry(b_temp,"f_{#Lambda 1} = 1","l");
+			tmp_line->SetLineColor(kBlack);
+			tmp_line->SetLineStyle(2);
+         leg0P->AddEntry(b_temp,"SM ggH","l");
+         leg0P->AddEntry(tmp_line,"f_{#Lambda 1} = 1","l");
          leg0P->Draw();
          if( i < 10 ) c1->SaveAs(("Animations/DL1_0"+to_string(i)+".png").c_str());
          else c1->SaveAs(("Animations/DL1_"+to_string(i)+".png").c_str());
@@ -487,10 +527,13 @@ int main( int argc, char *argv[] )
          b_temp->DrawNormalized("HIST SAME");
          
          frame->GetXaxis()->SetTitle("D_{#Lambda1}^{Z #gamma^{*},dec}");
+			frame->GetYaxis()->SetTitle("a.u.");
          gStyle->SetOptStat(0);
          TLegend *leg0P = new TLegend(0.65, 0.75, 0.90, 0.90);
-         leg0P->AddEntry(h_temp,"SM ggH","l");
-         leg0P->AddEntry(b_temp,"f_{#Lambda1} = 1","l");
+			tmp_line->SetLineColor(kBlack);
+			tmp_line->SetLineStyle(2);
+         leg0P->AddEntry(b_temp,"SM ggH","l");
+         leg0P->AddEntry(tmp_line,"f_{#Lambda1} = 1","l");
          leg0P->Draw();
          if( i < 10 ) c1->SaveAs(("Animations/DL1Zgs_0"+to_string(i)+".png").c_str());
          else c1->SaveAs(("Animations/DL1Zgs_"+to_string(i)+".png").c_str());
