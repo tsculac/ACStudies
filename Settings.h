@@ -31,8 +31,9 @@ public:
    enum _1D_hist_name
    {
       M4l_allevents     = 0,
-      M4l_DVBF2j = 1,
-      M4l_DVH    = 2,
+      M4l_counter = 1,
+      M4l_DVBF2j = 2,
+      M4l_DVH    = 3,
       MAX_NUM_OF_1D_HIST_NAMES
    };
    

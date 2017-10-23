@@ -2,10 +2,14 @@ OBJSRUN = Functions.o Settings.o Analyzer.o run.o
 OBJSDUMP = Functions.o Settings.o Analyzer.o DumpPlots.o
 OBJSEFF = Functions.o Settings.o Analyzer.o EfficiencyVsCut.o
 OBJSCAT = Functions.o Settings.o Analyzer.o Categorisation.o
+OBJSSLICE = Functions.o Settings.o Analyzer.o M4lSlices.o
+OBJSSPLINES = Functions.o Settings.o Analyzer.o ProduceSplines.o
 
 CXXFLAGS = -g -I. -m64 $(shell root-config --cflags)
 LDFLAGS = $(shell root-config --libs)
 CXX = g++
+
+all: run DumpPlots EfficiencyVsCut Categorisation Slices ProduceSplines
 
 run: ${OBJSRUN}
 	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSRUN} -o run
@@ -18,6 +22,12 @@ EfficiencyVsCut: ${OBJSEFF}
 
 Categorisation: ${OBJSCAT}
 	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSCAT} -o Categorisation
+
+Slices: ${OBJSSLICE}
+	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSSLICE} -o Slice
+
+ProduceSplines: ${OBJSSPLINES}
+	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSSPLINES} -o ProduceSplines
 
 ################################
 Analyzer.o: Analyzer.C
@@ -40,8 +50,14 @@ EfficiencyVsCut.o: EfficiencyVsCut.cpp
 
 Categorisation.o: Categorisation.cpp
 	${CXX} -c ${CXXFLAGS} Categorisation.cpp
+
+M4lSlices.o: M4lSlices.C
+	${CXX} -c ${CXXFLAGS} M4lSlices.C
+
+ProduceSplines.o: ProduceSplines.cpp
+	${CXX} -c ${CXXFLAGS} ProduceSplines.cpp
 ################################
 
 # ==========================================
 clean:
-	\rm *.o run
+	\rm *.o run DumpPlots EfficiencyVsCut Categorisation Slice ProduceSplines

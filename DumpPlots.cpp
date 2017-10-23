@@ -22,7 +22,17 @@
 using namespace std;
 
 int main( int argc, char *argv[] )
-{
+{	
+	bool plotDBKGcheck = false;
+	bool plotVBF2j = true;
+	bool plotVH = true;
+	bool plotDBKG = true;
+	bool plotD0M = true;
+	bool plotD0P = true;
+	bool plotDL1 = true;
+	bool plotDL1Zgs = false;
+	
+	
    TFile* tgraph_file = TFile::Open("EffVsM4l.root");
    
    TGraphErrors *VBF_Djj_tgraph,*VBF_DVH_tgraph, *ggH_Djj_tgraph,*ggH_DVH_tgraph, *WH_Djj_tgraph,*WH_DVH_tgraph, *ZH_Djj_tgraph,*ZH_DVH_tgraph, *qqZZ_Djj_tgraph,*qqZZ_DVH_tgraph;
@@ -80,7 +90,7 @@ int main( int argc, char *argv[] )
    qqZZ_Djj_tgraph->SetMarkerColor(kGreen);
    mg->Add(qqZZ_Djj_tgraph);
    mg->SetMinimum(0.);
-   mg->SetMaximum(0.69);
+   mg->SetMaximum(1.39);
    mg->Draw("apl");
    mg->GetXaxis()->SetTitle("M_{4l} (GeV)");
    mg->GetYaxis()->SetTitle("D_{2jets}^{VBF}  eff");
@@ -92,7 +102,8 @@ int main( int argc, char *argv[] )
    leg1->AddEntry(ZH_Djj_tgraph,"ZH","pl");
    leg1->AddEntry(qqZZ_Djj_tgraph,"qqZZ","pl");
    leg1->Draw();
-   c1->SaveAs("ControlPlots/DVBFJJ_comb.pdf");
+   c1->SaveAs("ControlPlots/DVBFJJ_comb_2jEvents.pdf");
+   c1->SaveAs("ControlPlots/DVBFJJ_comb_2jEvents.png");
    
    
    //======================
@@ -133,7 +144,7 @@ int main( int argc, char *argv[] )
    mg2->Add(qqZZ_DVH_tgraph);
    
    mg2->SetMinimum(0.);
-   mg2->SetMaximum(0.39);
+   mg2->SetMaximum(1.19);
    mg2->Draw("apl");
    mg2->GetXaxis()->SetLimits(70.,300.);
    mg2->GetXaxis()->SetTitle("M_{4l} (GeV)");
@@ -146,7 +157,8 @@ int main( int argc, char *argv[] )
    leg2->AddEntry(ZH_DVH_tgraph,"ZH","pl");
    leg2->AddEntry(qqZZ_DVH_tgraph,"qqZZ","pl");
    leg2->Draw();
-   c1->SaveAs("ControlPlots/DVH_comb.pdf");
+   c1->SaveAs("ControlPlots/DVH_comb_2jEvents.pdf");
+   c1->SaveAs("ControlPlots/DVH_comb_2jEvents.png");
    
    
    tgraph_file->Close();
@@ -154,15 +166,6 @@ int main( int argc, char *argv[] )
    TFile* th2f_file = TFile::Open("DVsM4l.root");
    Functions *functions = new Functions();
    TH2F *DVBF2jVsM4l_VBF,*DVBF2jVsM4l_ggH,*DVHVsM4l_ZH,*DVHVsM4l_WH,*DVHVsM4l_ggH,*DBKGDEC_ggH,*DBKGDEC_qqZZ,*D0MDECVsM4l_0MH,*D0MDECVsM4l_ggH,*D0PDECVsM4l_0PH,*D0PDECVsM4l_ggH,*DL1DECVsM4l_0PL1,*DL1DECVsM4l_ggH,*DL1ZgsDECVsM4l_0PL1,*DL1ZgsDECVsM4l_ggH;
-   
-   bool plotDBKGcheck = false;
-   bool plotVBF2j = true;
-   bool plotVH = true;
-   bool plotDBKG = true;
-   bool plotD0M = true;
-   bool plotD0P = true;
-   bool plotDL1 = true;
-   bool plotDL1Zgs = false;
    
    DVBF2jVsM4l_VBF     = (TH2F*)th2f_file->Get("DVBF2jVsM4l_VBF");
    DVBF2jVsM4l_ggH     = (TH2F*)th2f_file->Get("DVBF2jVsM4l_ggH");
@@ -222,8 +225,8 @@ int main( int argc, char *argv[] )
    Int_t   m4l_bins2     = 10;
    Double_t m4l_slices2[] = {110,120,130,140,150,160,170,180,190,200,250};
    
-   Int_t   m4l_bins3     = 12;
-   Double_t m4l_slices3[] = {110,140,180,220,300,400,500,600,700,800,1000,2000,3000};
+   Int_t   m4l_bins3     = 13;
+   Double_t m4l_slices3[] = {110,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
    
    TH1D *h_temp,*b_temp;
    TH1 *frame;

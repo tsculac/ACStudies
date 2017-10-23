@@ -5,7 +5,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
-void Analyzer::Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names])
+void Analyzer::Loop(bool only2jEvents, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names])
 {
    if (fChain == 0) return;
 
@@ -40,7 +40,7 @@ void Analyzer::Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names]
 
 
    Long64_t nbytes = 0, nb = 0;
-   for (Long64_t jentry=0; jentry<nentries;jentry++) {//Loop po eventovima
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//Loop over events
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
@@ -81,11 +81,14 @@ void Analyzer::Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names]
       if (p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF2j_ME = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal);
       else DVBF2j_ME = -1;
       
-      if (p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal != 0) DVBF2j_ME_BSM = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal);
+      if (p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal != 0) DVBF2j_ME_BSM = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal);
       else DVBF2j_ME_BSM = -1;
 
       if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
       else DVBF1j_ME = -1;
+		
+//		if (p_JVBF_SIG_ghv4_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv4_1_JHUGen_JECNominal != 0) DVBF1j_ME_BSM = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv4_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv4_1_JHUGen_JECNominal));
+//		else DVBF1j_ME_BSM = -1;
 
       if (p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal != 0) DZH_ME = 1./(1.+ cConstant_ZH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal));
       else DZH_ME = -1;
@@ -114,6 +117,7 @@ void Analyzer::Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names]
          Float_t g_Decay_g4    = g_Decay_g4_spline->Eval(ZZMass);
          Float_t g_Decay_gL1   = g_Decay_L1_spline->Eval(ZZMass)*pow(10,-4);
          Float_t g_Decay_gL1Zs = g_Decay_L1Zgs_spline->Eval(ZZMass)*pow(10,-4);
+   
          
          D_BKG_DEC = 1. / ( 1. + cConstant_DBKG*p_QQB_BKG_MCFM/p_GG_SIG_ghg2_1_ghz1_1_JHUGen);
          D_0MH_DEC = p_GG_SIG_ghg2_1_ghz1_1_JHUGen / (p_GG_SIG_ghg2_1_ghz1_1_JHUGen + g_Decay_g4 * g_Decay_g4 * p_GG_SIG_ghg2_1_ghz4_1_JHUGen );
@@ -127,10 +131,21 @@ void Analyzer::Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names]
       }
       
       //=================================
-      
-      histos_1D[Settings::M4l_allevents]->Fill(ZZMass, _event_weight);
-      p->Fill(ZZMass,ZZMass,_event_weight);
-      
+		
+		if ( only2jEvents && nCleanedJetsPt30 >= 2)
+		{
+			histos_1D[Settings::M4l_allevents]->Fill(ZZMass, _event_weight);
+			histos_1D[Settings::M4l_counter]->Fill(ZZMass);
+			p->Fill(ZZMass,ZZMass,_event_weight);
+		}
+		
+		else if (  !only2jEvents )
+		{
+			histos_1D[Settings::M4l_allevents]->Fill(ZZMass, _event_weight);
+			histos_1D[Settings::M4l_counter]->Fill(ZZMass);
+			p->Fill(ZZMass,ZZMass,_event_weight);
+		}
+
       if (nCleanedJetsPt30 >= 2)
       {
          histos_2D[Settings::D_VBF2j]->Fill(ZZMass, DVBF2j_ME, _event_weight);
@@ -161,7 +176,7 @@ void Analyzer::Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names]
 }
 
 
-void Analyzer::LoopForEff(bool shiftWP, TH1F *histos_1D[])
+void Analyzer::LoopForEff(bool shiftWP, bool only2jEvents , TH1F *histos_1D[])
 {
    if (fChain == 0) return;
    
@@ -237,7 +252,7 @@ void Analyzer::LoopForEff(bool shiftWP, TH1F *histos_1D[])
          cConstant_VBF1j = getDVBF1jetConstant_shiftWP(ZZMass,false,0.5);
          cConstant_ZH    = getDZHhConstant_shiftWP(ZZMass,false,0.5);
          cConstant_WH    = getDWHhConstant_shiftWP(ZZMass,false,0.5);
-         ZH_mavjj = 1.;
+         WH_mavjj = 1.;
          ZH_mavjj = 1.;
       }
          
@@ -256,13 +271,12 @@ void Analyzer::LoopForEff(bool shiftWP, TH1F *histos_1D[])
          DVH_ME = TMath::Max( DZH_ME, DWH_ME );
       
       //=================================
-   
-      
+		
       
       if (nCleanedJetsPt30 >= 2) histos_1D[Settings::M4l_DVBF2j]->Fill(DVBF2j_ME, _event_weight);
-      else histos_1D[Settings::M4l_DVBF2j]->Fill(0., _event_weight);
+      else if (!only2jEvents) histos_1D[Settings::M4l_DVBF2j]->Fill(0., _event_weight);
       if (nCleanedJetsPt30 >= 2) histos_1D[Settings::M4l_DVH]->Fill(DVH_ME, _event_weight);
-      else histos_1D[Settings::M4l_DVH]->Fill(0., _event_weight);
+      else if (!only2jEvents) histos_1D[Settings::M4l_DVH]->Fill(0., _event_weight);
       
       
    }//Kraj loop-a po eventovima
@@ -475,6 +489,38 @@ float Analyzer::getDZHhConstant_shiftWP(float ZZMass, bool useQGTagging, float n
 
 float Analyzer::ShiftWPfactor(float oldWP, float newWP) {
    return (oldWP/newWP) * ((1-newWP)/(1-oldWP));
+}
+
+float Analyzer::getDbkgkinConstant_old(int ZZflav, float ZZMass){ // ZZflav==id1*id2*id3*id4
+   float par[14]={
+      0.775,
+      -0.565,
+      70.,
+      5.90,
+      -0.235,
+      130.1,
+      13.25,
+      -0.33,
+      191.04,
+      16.05,
+      187.47,
+      -0.21,
+      1700.,
+      400.
+   };
+   if (abs(ZZflav)==121*121 || abs(ZZflav)==121*242 || abs(ZZflav)==242*242) par[11]=-0.42; // 4e
+   float kappa =
+   par[0]
+   +par[1]*exp(-pow(((ZZMass-par[2])/par[3]), 2))
+   +par[4]*exp(-pow(((ZZMass-par[5])/par[6]), 2))
+   +par[7]*(
+            exp(-pow(((ZZMass-par[8])/par[9]), 2))*(ZZMass<par[8])
+            + exp(-pow(((ZZMass-par[8])/par[10]), 2))*(ZZMass>=par[8])
+            )
+   + par[11]*exp(-pow(((ZZMass-par[12])/par[13]), 2));
+   
+   float constant = kappa/(1.-kappa);
+   return constant;
 }
 
 float Analyzer::GetDBKGcConstant(Short_t Z1Flav, Short_t Z2Flav, float ZZMass )

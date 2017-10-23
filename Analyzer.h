@@ -1089,9 +1089,17 @@ public :
    Float_t _lumi;
    Float_t _xsec;
    
-   Float_t oldWP_VBF2j = 0.477348;
-   Float_t oldWP_VH    = 0.0375066;
-   
+//   Float_t oldWP_VBF2j = 0.475598;
+//   Float_t oldWP_VBF1j = 0.374228;
+//   Float_t oldWP_WH    = 0.961587;
+//   Float_t oldWP_ZH    = 0.942319;
+//   Float_t oldWP_VH    = 0.941161;
+	
+	Float_t oldWP_VBF2j = 0.478728;
+	Float_t oldWP_WH    = 0.950254;
+	Float_t oldWP_ZH    = 0.954818;
+	Float_t oldWP_VH    = 0.952971;
+	
    Float_t DVBF1j_ME;
    Float_t DVBF2j_ME;
    Float_t DWH_ME;
@@ -1144,8 +1152,8 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, TString filename);
-   virtual void     Loop(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-   virtual void     LoopForEff(bool shiftWP, TH1F *histos_1D[Settings::num_of_1D_hist_names]);
+   virtual void     Loop(bool only2jEvetns, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
+   virtual void     LoopForEff(bool shiftWP, bool only2jEvents, TH1F *histos_1D[Settings::num_of_1D_hist_names]);
    virtual void     LoopForCat(bool newArbitration, TH1F *histo);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -1162,6 +1170,7 @@ public :
    virtual float getDWHhWP(float ZZMass, bool useQGTagging);
    virtual float getDZHhWP(float ZZMass, bool useQGTagging);
    virtual float ShiftWPfactor(float oldWP, float newWP);
+   virtual float getDbkgkinConstant_old(int ZZflav, float ZZMass);
    virtual float GetDBKGcConstant(Short_t Z1Flav, Short_t Z2Flav, float ZZMass );
 };
 
