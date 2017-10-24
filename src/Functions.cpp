@@ -1,5 +1,5 @@
 #define Functions_cxx
-#include "Functions.h"
+#include "../include/Functions.h"
 #include "TH2.h"
 #include "TStyle.h"
 #include "TCanvas.h"

@@ -1,6 +1,6 @@
 #define Analyzer_cxx
-#include "Analyzer.h"
-#include "Functions.h"
+#include "../include/Analyzer.h"
+#include "../include/Functions.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -234,9 +234,10 @@ void Analyzer::LoopForEff(bool shiftWP, bool only2jEvents , TH1F *histos_1D[])
       {
          if (shiftWP) cConstant_VBF2j = VBF2j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF2j, 0.5);
          else cConstant_VBF2j = VBF2j_spline->Eval(ZZMass);
-            
-         cConstant_VBF1j = VBF1j_spline->Eval(ZZMass);
-         
+			
+			if (shiftWP) cConstant_VBF1j = VBF1j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF1j, 0.5);
+			else cConstant_VBF1j = VBF1j_spline->Eval(ZZMass);
+			
          if (shiftWP) cConstant_ZH    = ZH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
          else cConstant_ZH    = ZH_spline->Eval(ZZMass);
          if (shiftWP) cConstant_WH    = WH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
@@ -395,6 +396,101 @@ void Analyzer::LoopForCat(bool newArbitration, TH1F *histo)
    
    cout << "[INFO] File " << input_file_name << " is processed." << endl;
 }
+
+
+void Analyzer::LoopForNJets(TH1F *histo)
+{
+	if (fChain == 0) return;
+	
+	Long64_t nentries = fChain->GetEntriesFast();
+	
+	hCounters = (TH1F*)inputfile->Get("ZZTree/Counters");
+	gen_sum_weights = (Long64_t)hCounters->GetBinContent(40);
+	
+	VBF1j_file   = new TFile("cConstants/SmoothKDConstant_m4l_DjVBF13TeV.root");
+	VBF1j_spline = (TSpline3*)VBF1j_file->Get("sp_gr_varTrue_Constant_Smooth");
+	VBF2j_file = new TFile("cConstants/SmoothKDConstant_m4l_DjjVBF13TeV.root");
+	VBF2j_spline = (TSpline3*)VBF2j_file->Get("sp_gr_varTrue_Constant_Smooth");
+	WH_file = new TFile("cConstants/SmoothKDConstant_m4l_DjjWH13TeV.root");
+	WH_spline = (TSpline3*)WH_file->Get("sp_gr_varTrue_Constant_Smooth");
+	ZH_file = new TFile("cConstants/SmoothKDConstant_m4l_DjjZH13TeV.root");
+	ZH_spline = (TSpline3*)ZH_file->Get("sp_gr_varTrue_Constant_Smooth");
+	
+	Long64_t nbytes = 0, nb = 0;
+	for (Long64_t jentry=0; jentry<nentries;jentry++) {//Loop po eventovima
+		Long64_t ientry = LoadTree(jentry);
+		if (ientry < 0) break;
+		nb = fChain->GetEntry(jentry);   nbytes += nb;
+		
+		if ( input_file_name.Contains("VBFH1500")) _xsec = 0.02288;
+		if ( input_file_name.Contains("VBFH2000")) _xsec = 0.007052;
+		if ( input_file_name.Contains("VBFH2500")) _xsec = 0.00236;
+		if ( input_file_name.Contains("VBFH3000")) _xsec = 0.0008253;
+		else _xsec = xsec;
+		
+		// K factors
+		//=================================
+		_k_factor = 1;
+		
+		// Final event weight
+		_event_weight = (1000 * _lumi * _xsec *_k_factor * overallEventWeight) / gen_sum_weights;
+		
+		
+		//=================================
+		// CATEGORISATION DISCRIMINANTS
+		//=================================
+		Float_t cConstant_VBF2j, cConstant_VBF1j, cConstant_WH, cConstant_ZH, ZH_mavjj, WH_mavjj;
+		
+		cConstant_VBF2j = VBF2j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF2j, 0.5);
+		cConstant_VBF1j = VBF1j_spline->Eval(ZZMass);
+		cConstant_ZH    = ZH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
+		cConstant_WH    = WH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
+		
+		WH_mavjj        = p_HadWH_mavjj_JECNominal;
+		ZH_mavjj        = p_HadZH_mavjj_JECNominal;
+		
+		if (p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF2j_ME = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal);
+		else DVBF2j_ME = -1;
+		
+		if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
+		else DVBF1j_ME = -1;
+		
+		if (p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*ZH_mavjj != 0) DZH_ME = 1./(1.+ cConstant_ZH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*ZH_mavjj));
+		else DZH_ME = -1;
+		
+		if (p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*WH_mavjj != 0) DWH_ME = 1./(1.+ cConstant_WH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*WH_mavjj));
+		else DWH_ME = -1;
+		
+		DVH_ME = TMath::Max( DZH_ME, DWH_ME );
+		
+		//=================================
+		Int_t NVBFJets = 0;
+		if( nCleanedJetsPt30 > 2 && DVBF2j_ME > 0.5)
+		{
+			for(int i = 0; i < JetEta->size() - 2; i++)
+			{
+				if(JetEta->at(0) < 0 && JetEta->at(1) > 0 && (JetEta->at(2+i) > JetEta->at(0) && JetEta->at(2+i) < JetEta->at(1))) NVBFJets++;
+				if(JetEta->at(0) > 0 && JetEta->at(1) < 0 && (JetEta->at(2+i) > JetEta->at(1) && JetEta->at(2+i) < JetEta->at(0))) NVBFJets++;
+			}
+			
+			histo->Fill(NVBFJets,_event_weight);
+		}
+
+		
+		
+		
+	}//Kraj loop-a po eventovima
+	
+	VBF1j_file->Close();
+	VBF2j_file->Close();
+	WH_file->Close();
+	ZH_file->Close();
+	
+	cout << "[INFO] File " << input_file_name << " is processed." << endl;
+}
+
+
+
 float Analyzer::getDVBF2jetsConstant_old(float ZZMass){
    float par[9]={
       1.876,

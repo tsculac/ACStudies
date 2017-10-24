@@ -16,9 +16,9 @@
 
 
 // My own files
-#include "Analyzer.h"
-#include "Functions.h"
-#include "Settings.h"
+#include "../include/Analyzer.h"
+#include "../include/Functions.h"
+#include "../include/Settings.h"
 
 using namespace std;
 

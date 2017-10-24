@@ -1,5 +1,5 @@
 // Include classes
-#include "Settings.h"
+#include "../include/Settings.h"
 
 using namespace std;
 

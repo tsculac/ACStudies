@@ -1,63 +1,96 @@
-OBJSRUN = Functions.o Settings.o Analyzer.o run.o
-OBJSDUMP = Functions.o Settings.o Analyzer.o DumpPlots.o
-OBJSEFF = Functions.o Settings.o Analyzer.o EfficiencyVsCut.o
-OBJSCAT = Functions.o Settings.o Analyzer.o Categorisation.o
-OBJSSLICE = Functions.o Settings.o Analyzer.o M4lSlices.o
-OBJSSPLINES = Functions.o Settings.o Analyzer.o ProduceSplines.o
-
-CXXFLAGS = -g -I. -m64 $(shell root-config --cflags)
-LDFLAGS = $(shell root-config --libs)
+CXXFLAGS = -g -I. -m64 $(shell root-config --cflags) -I include
+LDFLAGS = $(shell root-config --libs) -lm -lGenVector
 CXX = g++
 
-all: run DumpPlots EfficiencyVsCut Categorisation Slices ProduceSplines
+VPATH = ./src/ ./include/
 
-run: ${OBJSRUN}
-	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSRUN} -o run
+SRCPP_RUN = run.cpp\
+		Analyzer.cpp\
+		Settings.cpp\
+		Functions.cpp\
 
-DumpPlots: ${OBJSDUMP}
-	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSDUMP} -o DumpPlots
+SRCPP_DUMP = DumpPlots.cpp\
+		Analyzer.cpp\
+		Settings.cpp\
+		Functions.cpp\
 
-EfficiencyVsCut: ${OBJSEFF}
-	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSEFF} -o EfficiencyVsCut
+SRCPP_EFF = EfficiencyVsCut.cpp\
+		Analyzer.cpp\
+		Settings.cpp\
+		Functions.cpp\
 
-Categorisation: ${OBJSCAT}
-	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSCAT} -o Categorisation
+SRCPP_CAT = Categorisation.cpp\
+		Analyzer.cpp\
+		Settings.cpp\
+		Functions.cpp\
 
-Slices: ${OBJSSLICE}
-	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSSLICE} -o Slice
+SRCPP_SLICE = M4lSlices.cpp\
+		Analyzer.cpp\
+		Settings.cpp\
+		Functions.cpp\
 
-ProduceSplines: ${OBJSSPLINES}
-	${CXX} ${LDFLAGS} ${CXXFLAGS} ${OBJSSPLINES} -o ProduceSplines
+SRCPP_SPLINES = ProduceSplines.cpp\
+		Analyzer.cpp\
+		Settings.cpp\
+		Functions.cpp\
 
-################################
-Analyzer.o: Analyzer.C
-	${CXX} -c ${CXXFLAGS} $^
+SRCPP_NJETS = NJetsVBF.cpp\
+		Analyzer.cpp\
+		Settings.cpp\
+		Functions.cpp\
 
-Settings.o: Settings.C
-	${CXX} -c ${CXXFLAGS} $^
+INCLUDES = run.h\
+	        Analyzer.h\
+        	Settings.h\
+		Functions.h\
+    
+OBJCPP_RUN = $(patsubst %.cpp,obj/%.o,$(SRCPP_RUN))
+OBJCPP_DUMP = $(patsubst %.cpp,obj/%.o,$(SRCPP_DUMP))
+OBJCPP_EFF = $(patsubst %.cpp,obj/%.o,$(SRCPP_EFF))
+OBJCPP_CAT = $(patsubst %.cpp,obj/%.o,$(SRCPP_CAT))
+OBJCPP_SLICE = $(patsubst %.cpp,obj/%.o,$(SRCPP_SLICE))
+OBJCPP_SPLINES = $(patsubst %.cpp,obj/%.o,$(SRCPP_SPLINES))
+OBJCPP_NJETS = $(patsubst %.cpp,obj/%.o,$(SRCPP_NJETS))
 
-Functions.o: Functions.C
-	${CXX} -c ${CXXFLAGS} $^
+all: run DumpPlots EfficiencyVsCut Categorisation Slices ProduceSplines NJetsVBF
 
-run.o: run.cpp
-	${CXX} -c ${CXXFLAGS} run.cpp
 
-DumpPlots.o: DumpPlots.cpp
-	${CXX} -c ${CXXFLAGS} DumpPlots.cpp
+obj/%.o: %.cpp $(INCLUDES)
+	@echo ">> compiling $*"
+	@mkdir -p obj/
+	@$(CXX) -c $< ${CXXFLAGS} -o $@
+   
 
-EfficiencyVsCut.o: EfficiencyVsCut.cpp
-	${CXX} -c ${CXXFLAGS} EfficiencyVsCut.cpp
+run: $(OBJCPP_RUN)
+	@echo ">> linking..."
+	@$(CXX) $^ $(EXTLIBS) ${LDFLAGS} ${CXXFLAGS}  -o $@
 
-Categorisation.o: Categorisation.cpp
-	${CXX} -c ${CXXFLAGS} Categorisation.cpp
+DumpPlots: $(OBJCPP_DUMP)
+	@echo ">> linking..."
+	@$(CXX) $^ $(EXTLIBS) ${LDFLAGS} ${CXXFLAGS}  -o $@
 
-M4lSlices.o: M4lSlices.C
-	${CXX} -c ${CXXFLAGS} M4lSlices.C
+EfficiencyVsCut: $(OBJCPP_EFF)
+	@echo ">> linking..."
+	@$(CXX) $^ $(EXTLIBS) ${LDFLAGS} ${CXXFLAGS}  -o $@
 
-ProduceSplines.o: ProduceSplines.cpp
-	${CXX} -c ${CXXFLAGS} ProduceSplines.cpp
-################################
+Categorisation: $(OBJCPP_CAT)
+	@echo ">> linking..."
+	@$(CXX) $^ $(EXTLIBS) ${LDFLAGS} ${CXXFLAGS}  -o $@
 
-# ==========================================
+Slices: $(OBJCPP_SLICE)
+	@echo ">> linking..."
+	@$(CXX) $^ $(EXTLIBS) ${LDFLAGS} ${CXXFLAGS}  -o $@
+
+ProduceSplines: $(OBJCPP_SPLINES)
+	@echo ">> linking..."
+	@$(CXX) $^ $(EXTLIBS) ${LDFLAGS} ${CXXFLAGS}  -o $@
+
+NJetsVBF: $(OBJCPP_NJETS)
+	@echo ">> linking..."
+	@$(CXX) $^ $(EXTLIBS) ${LDFLAGS} ${CXXFLAGS}  -o $@
+
+
 clean:
-	\rm *.o run DumpPlots EfficiencyVsCut Categorisation Slice ProduceSplines
+	@echo ">> cleaning objects and executable"
+	@rm -f obj/*.o
+	@rm -f run DumpPlots EfficiencyVsCut Categorisation Slices ProduceSplines NJetsVBF

@@ -16,20 +16,20 @@
 
 
 // My own files
-#include "Analyzer.h"
-#include "Functions.h"
-#include "Settings.h"
+#include "../include/Analyzer.h"
+#include "../include/Functions.h"
+#include "../include/Settings.h"
 
 using namespace std;
 
 int main( int argc, char *argv[] )
 {
    float lumi = 38.5;
-   int nbins = 1000;
+   int nbins = 10000;
    bool shiftWP = true;
 	bool mergeInto_VH = true;
 	bool only2jEvents = false;
-	bool includeMCFM = false; //Slows down a lot
+	bool includeMCFM = true; //Slows down a lot
 	bool useqqZZ_ext = false; //qqZZ does not have enough statistic
    
    TFile *f = new TFile("EffVsCut.root", "recreate");
@@ -126,28 +126,32 @@ int main( int argc, char *argv[] )
 
    cout << "Old efficincy of DVBF2j in VBF sample = " << oldeff_Djj_VBF << endl;
    cout << "Old efficincy of DVBF2j in ggH sample = " << oldeff_Djj_ggH << endl;
-   cout << "Old efficincy of DVH in ggH sample = " << oldeff_DVH_ggH << endl;
+	cout << "Old efficincy of DVBF2j in qqZZ sample = " << oldeff_Djj_qqZZ << endl;
 	if (mergeInto_VH) cout << "Old efficincy of DVH in VH samples = " << oldeff_DVH_WH << endl;
 	else
 	{
 		cout << "Old efficincy of DVH in WH sample = " << oldeff_DVH_WH << endl;
 		cout << "Old efficincy of DVH in ZH sample = " << oldeff_DVH_ZH << endl;
 	}
+	cout << "Old efficincy of DVH in ggH sample = " << oldeff_DVH_ggH << endl;
    cout << "Old efficincy of DVH in qqZZ sample = " << oldeff_DVH_qqZZ << endl;
-   cout << "Old efficincy of DVBF2j in qqZZ sample = " << oldeff_Djj_qqZZ << endl;
 	
-   TString VBF125_new         = folder_name_new + "VBFH125" + file_name;
-   TString gg125_new          = folder_name_new + "ggH125" + file_name;
-	TString gg125_MiNLO_new    = folder_name_new + "ggH125_minloHJJ" + file_name;
-	TString gg125_NNLOPS_new   = folder_name_new + "ggH125_NNLOPS" + file_name;
-	TString ggTo4e_MCFM_new    = folder_name_new + "ggTo4e_0PMH125_MCFM701" + file_name;
-	TString ggTo4mu_MCFM_new   = folder_name_new + "ggTo4mu_0PMH125_MCFM701" + file_name;
-	TString ggTo2e2mu_MCFM_new = folder_name_new + "ggTo2e2mu_0PMH125_MCFM701" + file_name;
-   TString Wplus125_new       = folder_name_new + "WplusH125" + file_name;
-   TString Wminus125_new      = folder_name_new + "WminusH125" + file_name;
-   TString Z125_new           = folder_name_new + "ZH125" + file_name;
-   TString qqZZ_new           = folder_name_new + "ZZTo4l" + file_name;
-	TString qqZZext_new        = folder_name_new + "ZZTo4lext" + file_name;
+	
+   TString VBF125_new           = folder_name_new + "VBFH125" + file_name;
+   TString gg125_new            = folder_name_new + "ggH125" + file_name;
+	TString gg125_MiNLO_new      = folder_name_new + "ggH125_minloHJJ" + file_name;
+	TString gg125_NNLOPS_new     = folder_name_new + "ggH125_NNLOPS" + file_name;
+	TString ggTo4e_MCFM_new      = folder_name_new + "ggTo4e_0PMH125_MCFM701" + file_name;
+	TString ggTo4mu_MCFM_new     = folder_name_new + "ggTo4mu_0PMH125_MCFM701" + file_name;
+	TString ggTo4tau_MCFM_new    = folder_name_new + "ggTo4tau_0PMH125_MCFM701" + file_name;
+	TString ggTo2e2mu_MCFM_new   = folder_name_new + "ggTo2e2mu_0PMH125_MCFM701" + file_name;
+	TString ggTo2e2tau_MCFM_new  = folder_name_new + "ggTo2e2tau_0PMH125_MCFM701" + file_name;
+	TString ggTo2mu2tau_MCFM_new = folder_name_new + "ggTo2mu2tau_0PMH125_MCFM701" + file_name;
+   TString Wplus125_new         = folder_name_new + "WplusH125" + file_name;
+   TString Wminus125_new        = folder_name_new + "WminusH125" + file_name;
+   TString Z125_new             = folder_name_new + "ZH125" + file_name;
+   TString qqZZ_new             = folder_name_new + "ZZTo4l" + file_name;
+	TString qqZZext_new          = folder_name_new + "ZZTo4lext" + file_name;
    
    TH1F *histos_1D_new[Settings::num_of_1D_hist_names];
 	
@@ -308,9 +312,13 @@ int main( int argc, char *argv[] )
 	// Run over new ggH MCFM sample
 	if ( includeMCFM )
 	{
-		Analyzer *_ggTo4e_MCFM_new     = new Analyzer(ggTo4e_MCFM_new, lumi);     _ggTo4e_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-		Analyzer *_ggTo4mu_MCFM_new    = new Analyzer(ggTo4mu_MCFM_new, lumi);    _ggTo4mu_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-		Analyzer *_ggTo2e2mu_MCFM_new  = new Analyzer(ggTo2e2mu_MCFM_new, lumi);  _ggTo2e2mu_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		Analyzer *_ggTo4e_MCFM_new      = new Analyzer(ggTo4e_MCFM_new, lumi);      _ggTo4e_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		Analyzer *_ggTo4mu_MCFM_new     = new Analyzer(ggTo4mu_MCFM_new, lumi);     _ggTo4mu_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		Analyzer *_ggTo2e2mu_MCFM_new   = new Analyzer(ggTo2e2mu_MCFM_new, lumi);   _ggTo2e2mu_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		Analyzer *_ggTo2e2tau_MCFM_new  = new Analyzer(ggTo2e2tau_MCFM_new, lumi);  _ggTo2e2tau_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		Analyzer *_ggTo2mu2tau_MCFM_new = new Analyzer(ggTo2mu2tau_MCFM_new, lumi); _ggTo2mu2tau_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		Analyzer *_ggTo4tau_MCFM_new    = new Analyzer(ggTo4tau_MCFM_new, lumi);    _ggTo4tau_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		
 		histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_ggH_MCFM_new");
 		f->cd();
 		histos_1D_new[Settings::M4l_DVBF2j]->Write();
@@ -578,32 +586,33 @@ int main( int argc, char *argv[] )
 	
    // Print out efficiencies and WPs
    cout << "======================================================================================" << endl;
-   cout << "To match old efficiency of DVBF2j in ggH (" << oldeff_Djj_ggH << ") cut should be = " << gr_Djj_ggH->Eval(oldeff_Djj_ggH) << endl;
-   cout << "To match old efficiency of DVBF2j in VBF (" << oldeff_Djj_VBF << ") cut should be = " << gr_Djj_VBF->Eval(oldeff_Djj_VBF) << endl << endl;
+   cout << "To match old efficiency of DVBF2j in VBF (" << oldeff_Djj_VBF << ") cut should be = " << gr_Djj_VBF->Eval(oldeff_Djj_VBF) << endl;
+	cout << "To match old efficiency of DVBF2j in ggH (" << oldeff_Djj_ggH << ") cut should be = " << gr_Djj_ggH->Eval(oldeff_Djj_ggH) << endl << endl;
    
-   cout << "To match old efficiency of DVH in ggH (" << oldeff_DVH_ggH << ") cut should be = " << gr_DVH_ggH->Eval(oldeff_DVH_ggH) << endl;
+	
    if(mergeInto_VH)cout << "To match old efficiency of DVH in VH (" << oldeff_DVH_WH << ") cut should be = " << gr_DVH_WH->Eval(oldeff_DVH_WH) << endl;
 	else
 	{
 		cout << "To match old efficiency of DVH in WH (" << oldeff_DVH_WH << ") cut should be = " << gr_DVH_WH->Eval(oldeff_DVH_WH) << endl;
       cout << "To match old efficiency of DVH in ZH (" << oldeff_DVH_ZH << ") cut should be = " << gr_DVH_ZH->Eval(oldeff_DVH_ZH) << endl;
 	}
+	cout << "To match old efficiency of DVH in ggH (" << oldeff_DVH_ggH << ") cut should be = " << gr_DVH_ggH->Eval(oldeff_DVH_ggH) << endl;
    cout << "=======================================================================================" << endl;
    
-   cout << "======================================================================================" << endl;
-   cout << "Efficiency of DVBF2j in ggH = " << gr_Djj_ggH->Eval(0.5) << endl;
-   cout << "Efficiency of DVBF2j in VBF = " << gr_Djj_VBF->Eval(0.5) << endl << endl;
-   cout << "Efficiency of DVBF2j in qqZZ = " << gr_Djj_qqZZ->Eval(0.5) << endl << endl;
-	
-   cout << "Efficiency of DVH in ggH = " << gr_DVH_ggH->Eval(0.5) << endl;
-	if ( mergeInto_VH) cout << "Efficiency of DVH in ZH = " << gr_DVH_WH->Eval(0.5) << endl;
-	else
-	{
-		cout << "Efficiency of DVH in WH = " << gr_DVH_WH->Eval(0.5) << endl;
-		cout << "Efficiency of DVH in ZH = " << gr_DVH_ZH->Eval(0.5) << endl;
-	}
-   cout << "Efficiency of DVH in qqZZ = " << gr_DVH_qqZZ->Eval(0.5) << endl;
-   cout << "=======================================================================================" << endl;
+//   cout << "======================================================================================" << endl;
+//   cout << "Efficiency of DVBF2j in VBF = " << gr_Djj_VBF->Eval(0.5) << endl;
+//	cout << "Efficiency of DVBF2j in ggH = " << gr_Djj_ggH->Eval(0.5) << endl;
+//   cout << "Efficiency of DVBF2j in qqZZ = " << gr_Djj_qqZZ->Eval(0.5) << endl << endl;
+//
+//	if ( mergeInto_VH) cout << "Efficiency of DVH in ZH = " << gr_DVH_WH->Eval(0.5) << endl;
+//	else
+//	{
+//		cout << "Efficiency of DVH in WH = " << gr_DVH_WH->Eval(0.5) << endl;
+//		cout << "Efficiency of DVH in ZH = " << gr_DVH_ZH->Eval(0.5) << endl;
+//	}
+//	cout << "Efficiency of DVH in ggH = " << gr_DVH_ggH->Eval(0.5) << endl;
+//   cout << "Efficiency of DVH in qqZZ = " << gr_DVH_qqZZ->Eval(0.5) << endl;
+//   cout << "=======================================================================================" << endl;
 	
    f->Close();
    delete f;
