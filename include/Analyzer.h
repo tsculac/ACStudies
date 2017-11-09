@@ -1091,7 +1091,7 @@ public :
    Float_t _xsec;
 
 	Float_t oldWP_VBF2j = 0.478278;
-	Float_t oldWP_VBF1j = 0.374228;
+	Float_t oldWP_VBF1j = 0.3743;
 	Float_t oldWP_WH    = 0.936489;
 	Float_t oldWP_ZH    = 0.946945;
 	Float_t oldWP_VH    = 0.941161;

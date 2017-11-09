@@ -73,7 +73,7 @@ void Analyzer::Loop(bool only2jEvents, TProfile *p, TH1F *histos_1D[Settings::nu
       // DISCRIMINANTS
       //=================================
       Float_t cConstant_VBF2j = VBF2j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF2j, 0.5);
-      Float_t cConstant_VBF1j = VBF1j_spline->Eval(ZZMass);
+//      Float_t cConstant_VBF1j = VBF1j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF1j, 0.5);
       Float_t cConstant_ZH    = ZH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
       Float_t cConstant_WH    = WH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
       
@@ -84,8 +84,8 @@ void Analyzer::Loop(bool only2jEvents, TProfile *p, TH1F *histos_1D[Settings::nu
       if (p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal != 0) DVBF2j_ME_BSM = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal);
       else DVBF2j_ME_BSM = -1;
 
-      if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
-      else DVBF1j_ME = -1;
+//      if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
+//      else DVBF1j_ME = -1;
 		
 //		if (p_JVBF_SIG_ghv4_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv4_1_JHUGen_JECNominal != 0) DVBF1j_ME_BSM = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv4_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv4_1_JHUGen_JECNominal));
 //		else DVBF1j_ME_BSM = -1;
@@ -278,6 +278,8 @@ void Analyzer::LoopForEff(bool shiftWP, bool only2jEvents , TH1F *histos_1D[])
       else if (!only2jEvents) histos_1D[Settings::M4l_DVBF2j]->Fill(0., _event_weight);
       if (nCleanedJetsPt30 >= 2) histos_1D[Settings::M4l_DVH]->Fill(DVH_ME, _event_weight);
       else if (!only2jEvents) histos_1D[Settings::M4l_DVH]->Fill(0., _event_weight);
+		if (nCleanedJetsPt30 == 1) histos_1D[Settings::M4l_DVBF1j]->Fill(DVBF1j_ME, _event_weight);
+		else if (!only2jEvents) histos_1D[Settings::M4l_DVBF1j]->Fill(0., _event_weight);
       
       
    }//Kraj loop-a po eventovima

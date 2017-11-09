@@ -34,6 +34,7 @@ public:
       M4l_counter = 1,
       M4l_DVBF2j = 2,
       M4l_DVH    = 3,
+		M4l_DVBF1j = 4,
       MAX_NUM_OF_1D_HIST_NAMES
    };
    
