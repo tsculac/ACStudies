@@ -1,4 +1,5 @@
 convert -delay 10 -loop 0 Animations/Djj_*.png Animations/Djj.gif
+convert -delay 10 -loop 0 Animations/Dj_*.png Animations/Dj.gif
 convert -delay 10 -loop 0 Animations/DVH_WH_*.png Animations/DVH_WH.gif
 convert -delay 10 -loop 0 Animations/DVH_ZH_*.png Animations/DVH_ZH.gif
 convert -delay 10 -loop 0 Animations/D0M_*.png Animations/D0M.gif

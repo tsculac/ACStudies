@@ -1089,12 +1089,20 @@ public :
    Float_t _event_weight;
    Float_t _lumi;
    Float_t _xsec;
-
-	Float_t oldWP_VBF2j = 0.478278;
+	
+// /170623/ production
+//	Float_t oldWP_VBF2j = 0.478278;
+//	Float_t oldWP_VBF1j = 0.3743;
+//	Float_t oldWP_WH    = 0.936489;
+//	Float_t oldWP_ZH    = 0.946945;
+//	Float_t oldWP_VH    = 0.941161;
+	
+// /171005/ production
+	Float_t oldWP_VBF2j = 0.141022;
 	Float_t oldWP_VBF1j = 0.3743;
-	Float_t oldWP_WH    = 0.936489;
-	Float_t oldWP_ZH    = 0.946945;
-	Float_t oldWP_VH    = 0.941161;
+	Float_t oldWP_WH    = 0.159785;
+	Float_t oldWP_ZH    = 0.185325;
+	Float_t oldWP_VH    = 0.173612;
 	
    Float_t DVBF1j_ME;
    Float_t DVBF2j_ME;

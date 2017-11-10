@@ -37,7 +37,8 @@ int main( int argc, char *argv[] )
    
    
    TString folder_name_old = "./Moriond_2017/";
-   TString folder_name_new = "root://lxcms03//data3/Higgs/170623/";
+//   TString folder_name_new = "root://lxcms03//data3/Higgs/170623/";
+	TString folder_name_new = "root://lxcms03//data3/Higgs/171005/";
    TString file_name       = "/ZZ4lAnalysis.root";
    
    float oldeff_Djj_VBF;

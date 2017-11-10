@@ -33,20 +33,21 @@ public:
       M4l_allevents     = 0,
       M4l_counter = 1,
       M4l_DVBF2j = 2,
-      M4l_DVH    = 3,
-		M4l_DVBF1j = 4,
+		M4l_DVBF1j = 3,
+      M4l_DVH    = 4,
       MAX_NUM_OF_1D_HIST_NAMES
    };
    
    enum _2D_hist_name
    {
       D_VBF2j = 0,
-      D_VH = 1,
-      D_BKG_DEC = 2,
-      D_0M_DEC = 3,
-      D_0hP_DEC = 4,
-      D_L1_DEC = 5,
-      D_L1Zgs_DEC = 6,
+		D_VBF1j = 1,
+      D_VH = 2,
+      D_BKG_DEC = 3,
+      D_0M_DEC = 4,
+      D_0hP_DEC = 5,
+      D_L1_DEC = 6,
+      D_L1Zgs_DEC = 7,
       MAX_NUM_OF_2D_HIST_NAMES
    };
    

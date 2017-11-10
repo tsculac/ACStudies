@@ -11,7 +11,7 @@ using namespace std;
 int main( int argc, char *argv[] )
 {
    Float_t  lumi = 35.8;
-	bool only2jEvents = true;
+	bool only2jEvents = false;
    
    TH1F *histos_1D[Settings::num_of_1D_hist_names];
    TH2F *histos_2D[Settings::num_of_2D_hist_names];
@@ -30,9 +30,11 @@ int main( int argc, char *argv[] )
    histos_1D[Settings::M4l_allevents] = new TH1F("h", "h", m4l_bins, m4l_slices);
    histos_1D[Settings::M4l_counter] = new TH1F("h_counter", "h_counter", 3000,70,3070);
    histos_1D[Settings::M4l_DVBF2j] = new TH1F("h_VBF2j", "h_VBF2j", m4l_bins, m4l_slices);
+	histos_1D[Settings::M4l_DVBF1j] = new TH1F("h_VBF1j", "h_VBF1j", m4l_bins, m4l_slices);
    histos_1D[Settings::M4l_DVH]    = new TH1F("h_VH", "h_VH", m4l_bins, m4l_slices);
 
    histos_2D[Settings::D_VBF2j]   = new TH2F("DVBF2jVsM4l",   "DVBF2jVsM4l", m4l_bins, m4l_slices, 100, 0., 1.);
+	histos_2D[Settings::D_VBF1j]   = new TH2F("DVBF1jVsM4l",   "DVBF1jVsM4l", m4l_bins, m4l_slices, 100, 0., 1.);
    histos_2D[Settings::D_VH]      = new TH2F("DVHVsM4l",   "DVHVsM4l", m4l_bins, m4l_slices, 100, 0., 1.);
    histos_2D[Settings::D_BKG_DEC] = new TH2F("DBKGDECVsM4l",   "DBKGDECVsM4l", m4l_bins3, m4l_slices3, 100, 0., 1.);
    histos_2D[Settings::D_0M_DEC]  = new TH2F("D0MDECVsM4l",   "D0MDECVsM4l", m4l_bins3, m4l_slices3, 100, 0., 1.);
@@ -40,7 +42,10 @@ int main( int argc, char *argv[] )
    histos_2D[Settings::D_L1_DEC]  = new TH2F("DL1DECVsM4l",   "DL1DECVsM4l", m4l_bins3, m4l_slices3, 100, 0., 1.);
    histos_2D[Settings::D_L1Zgs_DEC]  = new TH2F("DL1ZgsDECVsM4l","DL1ZgsDECVsM4l", m4l_bins3, m4l_slices3, 100, 0., 1.);
    
-   TFile *fOutControlHistos = new TFile("DVsM4l.root", "recreate");
+	TFile *fOutControlHistos;
+	
+	if(only2jEvents) fOutControlHistos = new TFile("DVsM4l_2jEvents.root", "recreate");
+	else fOutControlHistos = new TFile("DVsM4l_AllEvents.root", "recreate");
    
    TCanvas *c1,*c2, *c3;
    c1 = new TCanvas("c1","c1",900,700);
@@ -55,11 +60,13 @@ int main( int argc, char *argv[] )
    ResetHistos(p, histos_1D, histos_2D);
    DoVBFLoop(only2jEvents,lumi, p, histos_1D, histos_2D);
    
-   TGraphErrors *VBF_Djj_tgraph,*VBF_DVH_tgraph;
+   TGraphErrors *VBF_Djj_tgraph,*VBF_Dj_tgraph,*VBF_DVH_tgraph;
    
    histos_1D[Settings::M4l_DVBF2j]->Divide(histos_1D[Settings::M4l_allevents]);
+	histos_1D[Settings::M4l_DVBF1j]->Divide(histos_1D[Settings::M4l_allevents]);
    histos_1D[Settings::M4l_DVH]->Divide(histos_1D[Settings::M4l_allevents]);
    VBF_Djj_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF2j] , "VBF_Djj_tgraph");
+	VBF_Dj_tgraph  = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF1j] , "VBF_Dj_tgraph");
    VBF_DVH_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVH]    , "VBF_DVH_tgraph");
    
    fOutControlHistos->cd();
@@ -72,11 +79,13 @@ int main( int argc, char *argv[] )
    ResetHistos(p, histos_1D, histos_2D);
    DoggHLoop(only2jEvents,lumi, p, histos_1D, histos_2D);
    
-   TGraphErrors *ggH_Djj_tgraph,*ggH_DVH_tgraph;
+   TGraphErrors *ggH_Djj_tgraph,*ggH_Dj_tgraph,*ggH_DVH_tgraph;
    
    histos_1D[Settings::M4l_DVBF2j]->Divide(histos_1D[Settings::M4l_allevents]);
+	histos_1D[Settings::M4l_DVBF1j]->Divide(histos_1D[Settings::M4l_allevents]);
    histos_1D[Settings::M4l_DVH]->Divide(histos_1D[Settings::M4l_allevents]);
    ggH_Djj_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF2j] , "ggH_Djj_tgraph");
+	ggH_Dj_tgraph  = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF1j] , "ggH_Dj_tgraph");
    ggH_DVH_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVH] , "ggH_DVH_tgraph");
 
    fOutControlHistos->cd();
@@ -89,11 +98,13 @@ int main( int argc, char *argv[] )
    ResetHistos(p, histos_1D, histos_2D);
    DoqqZZLoop(only2jEvents,lumi, p, histos_1D, histos_2D);
    
-   TGraphErrors *qqZZ_Djj_tgraph,*qqZZ_DVH_tgraph;
+   TGraphErrors *qqZZ_Djj_tgraph,*qqZZ_Dj_tgraph,*qqZZ_DVH_tgraph;
    
    histos_1D[Settings::M4l_DVBF2j]->Divide(histos_1D[Settings::M4l_allevents]);
+	histos_1D[Settings::M4l_DVBF1j]->Divide(histos_1D[Settings::M4l_allevents]);
    histos_1D[Settings::M4l_DVH]->Divide(histos_1D[Settings::M4l_allevents]);
    qqZZ_Djj_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF2j] , "qqZZ_Djj_tgraph");
+	qqZZ_Dj_tgraph  = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF1j] , "qqZZ_Dj_tgraph");
    qqZZ_DVH_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVH] , "qqZZ_DVH_tgraph");
    
    fOutControlHistos->cd();
@@ -133,17 +144,20 @@ int main( int argc, char *argv[] )
    
    p       = new TProfile("p2","p2",m4l_bins2, m4l_slices2);
    histos_1D[Settings::M4l_allevents]       = new TH1F("h2", "h2",m4l_bins2, m4l_slices2);
-   histos_1D[Settings::M4l_DVBF2j] = new TH1F("histos_2D[Settings::D_VBF2j]", "histos_2D[Settings::D_VBF2j]",m4l_bins2, m4l_slices2);
-   histos_1D[Settings::M4l_DVH]    = new TH1F("histos_2D[Settings::D_VH]", "histos_2D[Settings::D_VH]",m4l_bins2, m4l_slices2);
+   histos_1D[Settings::M4l_DVBF2j] = new TH1F("DVBF2jVsM4l", "DVBF2jVsM4l",m4l_bins2, m4l_slices2);
+	histos_1D[Settings::M4l_DVBF1j] = new TH1F("DVBF1jVsM4l", "DVBF1jVsM4l",m4l_bins2, m4l_slices2);
+   histos_1D[Settings::M4l_DVH]    = new TH1F("DVHVsM4l", "DVHVsM4l",m4l_bins2, m4l_slices2);
    
    ResetHistos(p, histos_1D, histos_2D);
    DoWHLoop(only2jEvents,lumi, p, histos_1D, histos_2D);
    
-   TGraphErrors *WH_Djj_tgraph,*WH_DVH_tgraph;
+   TGraphErrors *WH_Djj_tgraph,*WH_Dj_tgraph,*WH_DVH_tgraph;
    
    histos_1D[Settings::M4l_DVBF2j]->Divide(histos_1D[Settings::M4l_allevents]);
+	histos_1D[Settings::M4l_DVBF1j]->Divide(histos_1D[Settings::M4l_allevents]);
    histos_1D[Settings::M4l_DVH]->Divide(histos_1D[Settings::M4l_allevents]);
    WH_Djj_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF2j] , "WH_Djj_tgraph");
+	WH_Dj_tgraph  = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF1j] , "WH_Dj_tgraph");
    WH_DVH_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVH] , "WH_DVH_tgraph");
    
    fOutControlHistos->cd();
@@ -157,11 +171,13 @@ int main( int argc, char *argv[] )
    ResetHistos(p, histos_1D, histos_2D);
    DoZHLoop(only2jEvents,lumi, p, histos_1D, histos_2D);
    
-   TGraphErrors *ZH_Djj_tgraph,*ZH_DVH_tgraph;
+   TGraphErrors *ZH_Djj_tgraph,*ZH_Dj_tgraph,*ZH_DVH_tgraph;
    
    histos_1D[Settings::M4l_DVBF2j]->Divide(histos_1D[Settings::M4l_allevents]);
+	histos_1D[Settings::M4l_DVBF1j]->Divide(histos_1D[Settings::M4l_allevents]);
    histos_1D[Settings::M4l_DVH]->Divide(histos_1D[Settings::M4l_allevents]);
    ZH_Djj_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF2j] , "ZH_Djj_tgraph");
+	ZH_Dj_tgraph  = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVBF1j] , "ZH_Dj_tgraph");
    ZH_DVH_tgraph = functions->makeGraphFromTH1(p, histos_1D[Settings::M4l_DVH] , "ZH_DVH_tgraph");
    
    fOutControlHistos->cd();
@@ -177,18 +193,25 @@ int main( int argc, char *argv[] )
    //    WRITE EFFICIENCY TGRAPHS TO ROOT
    //
    //==================================================================
-   TFile *fOutHistos = new TFile("EffVsM4l.root", "recreate");
+	TFile *fOutHistos;
+	if(only2jEvents) fOutHistos = new TFile("EffVsM4l_2jEvents.root", "recreate");
+	else fOutHistos = new TFile("EffVsM4l_AllEvents.root", "recreate");
    fOutHistos->cd();
    
    VBF_Djj_tgraph ->Write();
+	VBF_Dj_tgraph  ->Write();
    VBF_DVH_tgraph ->Write();
    ggH_Djj_tgraph ->Write();
+	ggH_Dj_tgraph  ->Write();
    ggH_DVH_tgraph ->Write();
    WH_Djj_tgraph  ->Write();
+	WH_Dj_tgraph   ->Write();
    WH_DVH_tgraph  ->Write();
    ZH_Djj_tgraph  ->Write();
+	ZH_Dj_tgraph   ->Write();
    ZH_DVH_tgraph  ->Write();
    qqZZ_Djj_tgraph->Write();
+	qqZZ_Dj_tgraph ->Write();
    qqZZ_DVH_tgraph->Write();
    
    fOutHistos->Close();
@@ -212,6 +235,8 @@ void WriteHistos(TString sample, TH1F *histos_1D[Settings::num_of_1D_hist_names]
    histos_1D[Settings::M4l_counter]->Write();
    histos_2D[Settings::D_VBF2j]->SetName("DVBF2jVsM4l_" + sample);
    histos_2D[Settings::D_VBF2j]->Write();
+	histos_2D[Settings::D_VBF1j]->SetName("DVBF1jVsM4l_" + sample);
+	histos_2D[Settings::D_VBF1j]->Write();
    histos_2D[Settings::D_VH]->SetName("DVHVsM4l_" + sample);
    histos_2D[Settings::D_VH]->Write();
    histos_2D[Settings::D_BKG_DEC]->SetName("DBKGDECVsM4l_" + sample);

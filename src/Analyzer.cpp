@@ -73,7 +73,7 @@ void Analyzer::Loop(bool only2jEvents, TProfile *p, TH1F *histos_1D[Settings::nu
       // DISCRIMINANTS
       //=================================
       Float_t cConstant_VBF2j = VBF2j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF2j, 0.5);
-//      Float_t cConstant_VBF1j = VBF1j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF1j, 0.5);
+      Float_t cConstant_VBF1j = VBF1j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF1j, 0.5);
       Float_t cConstant_ZH    = ZH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
       Float_t cConstant_WH    = WH_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VH, 0.5);
       
@@ -84,11 +84,10 @@ void Analyzer::Loop(bool only2jEvents, TProfile *p, TH1F *histos_1D[Settings::nu
       if (p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal != 0) DVBF2j_ME_BSM = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal);
       else DVBF2j_ME_BSM = -1;
 
-//      if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
-//      else DVBF1j_ME = -1;
+      if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
+      else DVBF1j_ME = -1;
 		
-//		if (p_JVBF_SIG_ghv4_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv4_1_JHUGen_JECNominal != 0) DVBF1j_ME_BSM = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv4_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv4_1_JHUGen_JECNominal));
-//		else DVBF1j_ME_BSM = -1;
+		DVBF1j_ME_BSM = -1.; //No D_VBF 1jet in BSM
 
       if (p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal != 0) DZH_ME = 1./(1.+ cConstant_ZH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal));
       else DZH_ME = -1;
@@ -152,12 +151,19 @@ void Analyzer::Loop(bool only2jEvents, TProfile *p, TH1F *histos_1D[Settings::nu
          histos_2D[Settings::D_VH]->Fill(ZZMass,DVH_ME, _event_weight);
 
       }
+		
+		if (nCleanedJetsPt30 == 1)
+		{
+			histos_2D[Settings::D_VBF1j]->Fill(ZZMass, DVBF1j_ME, _event_weight);
+		}
+		
       histos_2D[Settings::D_BKG_DEC]->Fill(ZZMass,D_BKG_DEC,_event_weight);
       histos_2D[Settings::D_0M_DEC]->Fill(ZZMass,D_0MH_DEC,_event_weight);
       histos_2D[Settings::D_0hP_DEC]->Fill(ZZMass,D_0PH_DEC,_event_weight);
       histos_2D[Settings::D_L1_DEC]->Fill(ZZMass,D_0L1_DEC,_event_weight);
       histos_2D[Settings::D_L1Zgs_DEC]->Fill(ZZMass,D_0L1Zgs_DEC,_event_weight);
       if( DVBF2j_ME > 0.5 && nCleanedJetsPt30 >= 2) histos_1D[Settings::M4l_DVBF2j]->Fill(ZZMass, _event_weight);
+		if( DVBF1j_ME > 0.5 && nCleanedJetsPt30 == 1) histos_1D[Settings::M4l_DVBF1j]->Fill(ZZMass, _event_weight);
       if( DVH_ME > 0.5 && nCleanedJetsPt30 >= 2) histos_1D[Settings::M4l_DVH]->Fill(ZZMass, _event_weight);
       
    }//Kraj loop-a po eventovima
@@ -230,7 +236,7 @@ void Analyzer::LoopForEff(bool shiftWP, bool only2jEvents , TH1F *histos_1D[])
       // CATEGORISATION DISCRIMINANTS
       //=================================
       Float_t cConstant_VBF2j, cConstant_VBF1j, cConstant_WH, cConstant_ZH, ZH_mavjj, WH_mavjj;
-      if(input_file_name.Contains("170623"))
+      if(input_file_name.Contains("/data3/Higgs/"))
       {
          if (shiftWP) cConstant_VBF2j = VBF2j_spline->Eval(ZZMass)*ShiftWPfactor(oldWP_VBF2j, 0.5);
          else cConstant_VBF2j = VBF2j_spline->Eval(ZZMass);
@@ -257,19 +263,25 @@ void Analyzer::LoopForEff(bool shiftWP, bool only2jEvents , TH1F *histos_1D[])
          ZH_mavjj = 1.;
       }
          
-         if (p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF2j_ME = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal);
-         else DVBF2j_ME = -1;
-         
-         if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
-         else DVBF1j_ME = -1;
-         
-         if (p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*ZH_mavjj != 0) DZH_ME = 1./(1.+ cConstant_ZH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*ZH_mavjj));
-         else DZH_ME = -1;
-         
-         if (p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*WH_mavjj != 0) DWH_ME = 1./(1.+ cConstant_WH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*WH_mavjj));
-         else DWH_ME = -1;
-         
-         DVH_ME = TMath::Max( DZH_ME, DWH_ME );
+		if (p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF2j_ME = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal);
+		else DVBF2j_ME = -1;
+	
+//		cout << "p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal = " << p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal << endl;
+//		cout << "p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal = " << p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal << endl;
+//		cout << "cConstant_VBF2j = " << cConstant_VBF2j << endl;
+//		cout << "DVBF2j_ME = " << DVBF2j_ME << endl;
+//		cout << "====================================================" << endl;
+		
+		if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
+		else DVBF1j_ME = -1;
+		
+		if (p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*ZH_mavjj != 0) DZH_ME = 1./(1.+ cConstant_ZH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*ZH_mavjj));
+		else DZH_ME = -1;
+		
+		if (p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*WH_mavjj != 0) DWH_ME = 1./(1.+ cConstant_WH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal)/(p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*WH_mavjj));
+		else DWH_ME = -1;
+		
+		DVH_ME = TMath::Max( DZH_ME, DWH_ME );
       
       //=================================
 		

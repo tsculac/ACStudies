@@ -23,9 +23,11 @@
 using namespace std;
 
 int main( int argc, char *argv[] )
-{	
+{
+	bool only2jEvents = false;
 	bool plotDBKGcheck = false;
 	bool plotVBF2j = true;
+	bool plotVBF1j = true;
 	bool plotVH = true;
 	bool plotDBKG = true;
 	bool plotD0M = true;
@@ -34,15 +36,25 @@ int main( int argc, char *argv[] )
 	bool plotDL1Zgs = false;
 	
 	
-   TFile* tgraph_file = TFile::Open("EffVsM4l.root");
+	TFile* tgraph_file;
+	if(only2jEvents) tgraph_file = TFile::Open("EffVsM4l_2jEvents.root");
+	else tgraph_file = TFile::Open("EffVsM4l_AllEvents.root");
    
-   TGraphErrors *VBF_Djj_tgraph,*VBF_DVH_tgraph, *ggH_Djj_tgraph,*ggH_DVH_tgraph, *WH_Djj_tgraph,*WH_DVH_tgraph, *ZH_Djj_tgraph,*ZH_DVH_tgraph, *qqZZ_Djj_tgraph,*qqZZ_DVH_tgraph;
+   TGraphErrors *VBF_Djj_tgraph, *ggH_Djj_tgraph, *WH_Djj_tgraph, *ZH_Djj_tgraph, *qqZZ_Djj_tgraph;
+	TGraphErrors *VBF_DVH_tgraph,*ggH_DVH_tgraph,*WH_DVH_tgraph,*ZH_DVH_tgraph,*qqZZ_DVH_tgraph;
+	TGraphErrors *VBF_Dj_tgraph, *ggH_Dj_tgraph, *WH_Dj_tgraph, *ZH_Dj_tgraph, *qqZZ_Dj_tgraph;
    
    VBF_Djj_tgraph = (TGraphErrors*)tgraph_file->Get("VBF_Djj_tgraph");
    ggH_Djj_tgraph = (TGraphErrors*)tgraph_file->Get("ggH_Djj_tgraph");
    WH_Djj_tgraph = (TGraphErrors*)tgraph_file->Get("WH_Djj_tgraph");
    ZH_Djj_tgraph = (TGraphErrors*)tgraph_file->Get("ZH_Djj_tgraph");
    qqZZ_Djj_tgraph = (TGraphErrors*)tgraph_file->Get("qqZZ_Djj_tgraph");
+	
+	VBF_Dj_tgraph = (TGraphErrors*)tgraph_file->Get("VBF_Dj_tgraph");
+	ggH_Dj_tgraph = (TGraphErrors*)tgraph_file->Get("ggH_Dj_tgraph");
+	WH_Dj_tgraph = (TGraphErrors*)tgraph_file->Get("WH_Dj_tgraph");
+	ZH_Dj_tgraph = (TGraphErrors*)tgraph_file->Get("ZH_Dj_tgraph");
+	qqZZ_Dj_tgraph = (TGraphErrors*)tgraph_file->Get("qqZZ_Dj_tgraph");
    
    VBF_DVH_tgraph = (TGraphErrors*)tgraph_file->Get("VBF_DVH_tgraph");
    ggH_DVH_tgraph = (TGraphErrors*)tgraph_file->Get("ggH_DVH_tgraph");
@@ -103,9 +115,16 @@ int main( int argc, char *argv[] )
    leg1->AddEntry(ZH_Djj_tgraph,"ZH","pl");
    leg1->AddEntry(qqZZ_Djj_tgraph,"qqZZ","pl");
    leg1->Draw();
-   c1->SaveAs("ControlPlots/DVBFJJ_comb_2jEvents.pdf");
-   c1->SaveAs("ControlPlots/DVBFJJ_comb_2jEvents.png");
-   
+	if(only2jEvents)
+	{
+		c1->SaveAs("ControlPlots/DVBFJJ_comb_2jEvents.pdf");
+		c1->SaveAs("ControlPlots/DVBFJJ_comb_2jEvents.png");
+	}
+	else
+	{
+		c1->SaveAs("ControlPlots/DVBFJJ_comb.pdf");
+	   c1->SaveAs("ControlPlots/DVBFJJ_comb.png");
+	}
    
    //======================
    //
@@ -158,18 +177,101 @@ int main( int argc, char *argv[] )
    leg2->AddEntry(ZH_DVH_tgraph,"ZH","pl");
    leg2->AddEntry(qqZZ_DVH_tgraph,"qqZZ","pl");
    leg2->Draw();
-   c1->SaveAs("ControlPlots/DVH_comb_2jEvents.pdf");
-   c1->SaveAs("ControlPlots/DVH_comb_2jEvents.png");
+	if(only2jEvents)
+	{
+		c1->SaveAs("ControlPlots/DVH_comb_2jEvents.pdf");
+		c1->SaveAs("ControlPlots/DVH_comb_2jEvents.png");
+	}
+	else
+	{
+		c1->SaveAs("ControlPlots/DVH_comb.pdf");
+		c1->SaveAs("ControlPlots/DVH_comb.png");
+	}
+	
+	//==================================================================
+	//
+	//    DVBF1j_ME
+	//======================
+	TCanvas *c3;
+	c3 = new TCanvas("c3","c3",900,900);
+	c3->Clear();
+	c3->cd();
+	TMultiGraph *mg3 = new TMultiGraph();
+	VBF_Dj_tgraph->SetTitle("VBF");
+	VBF_Dj_tgraph->SetLineColor(kRed);
+	VBF_Dj_tgraph->SetMarkerStyle(20);
+	VBF_Dj_tgraph->SetMarkerColor(kRed);
+	mg3->Add(VBF_Dj_tgraph);
+	
+	ggH_Dj_tgraph->SetTitle("ggH");
+	ggH_Dj_tgraph->SetLineColor(kBlack);
+	ggH_Dj_tgraph->SetMarkerStyle(20);
+	ggH_Dj_tgraph->SetMarkerColor(kBlack);
+	mg3->Add(ggH_Dj_tgraph);
+	
+	WH_Dj_tgraph->SetTitle("WH");
+	WH_Dj_tgraph->SetLineColor(kBlue);
+	WH_Dj_tgraph->SetMarkerStyle(20);
+	WH_Dj_tgraph->SetMarkerColor(kBlue);
+	mg3->Add(WH_Dj_tgraph);
+	
+	ZH_Dj_tgraph->SetTitle("ZH");
+	ZH_Dj_tgraph->SetLineColor(kYellow);
+	ZH_Dj_tgraph->SetMarkerStyle(20);
+	ZH_Dj_tgraph->SetMarkerColor(kYellow);
+	mg3->Add(ZH_Dj_tgraph);
+	
+	qqZZ_Dj_tgraph->SetTitle("qqZZ");
+	qqZZ_Dj_tgraph->SetLineColor(kGreen);
+	qqZZ_Dj_tgraph->SetMarkerStyle(20);
+	qqZZ_Dj_tgraph->SetMarkerColor(kGreen);
+	mg3->Add(qqZZ_Dj_tgraph);
+	mg3->SetMinimum(0.);
+	mg3->SetMaximum(1.39);
+	mg3->Draw("apl");
+	mg3->GetXaxis()->SetTitle("M_{4l} (GeV)");
+	mg3->GetYaxis()->SetTitle("D_{1jet}^{VBF}  eff");
+	
+	TLegend *leg3 = new TLegend(0.45, 0.65, 0.90, 0.90);
+	leg3->AddEntry(VBF_Dj_tgraph,"VBF","pl");
+	leg3->AddEntry(ggH_Dj_tgraph,"ggH","pl");
+	leg3->AddEntry(WH_Dj_tgraph,"WH","pl");
+	leg3->AddEntry(ZH_Dj_tgraph,"ZH","pl");
+	leg3->AddEntry(qqZZ_Dj_tgraph,"qqZZ","pl");
+	leg3->Draw();
+	if(only2jEvents)
+	{
+		c3->SaveAs("ControlPlots/DVBFJ_comb_1jEvents.pdf");
+		c3->SaveAs("ControlPlots/DVBFJ_comb_1jEvents.png");
+	}
+	else
+	{
+		c3->SaveAs("ControlPlots/DVBFJ_comb.pdf");
+		c3->SaveAs("ControlPlots/DVBFJ_comb.png");
+	}
    
    
    tgraph_file->Close();
    
-   TFile* th2f_file = TFile::Open("DVsM4l.root");
+	TFile* th2f_file;
+	if(only2jEvents) th2f_file = TFile::Open("DVsM4l_2jEvents.root");
+	else th2f_file = TFile::Open("DVsM4l_AllEvents.root");
+	
    Functions *functions = new Functions();
-   TH2F *DVBF2jVsM4l_VBF,*DVBF2jVsM4l_ggH,*DVHVsM4l_ZH,*DVHVsM4l_WH,*DVHVsM4l_ggH,*DBKGDEC_ggH,*DBKGDEC_qqZZ,*D0MDECVsM4l_0MH,*D0MDECVsM4l_ggH,*D0PDECVsM4l_0PH,*D0PDECVsM4l_ggH,*DL1DECVsM4l_0PL1,*DL1DECVsM4l_ggH,*DL1ZgsDECVsM4l_0PL1,*DL1ZgsDECVsM4l_ggH;
+	
+	TH2F *DVBF2jVsM4l_VBF,*DVBF2jVsM4l_ggH;
+	TH2F *DVBF1jVsM4l_VBF,*DVBF1jVsM4l_ggH;
+	TH2F *DVHVsM4l_ZH,*DVHVsM4l_WH,*DVHVsM4l_ggH;
+	TH2F *DBKGDEC_ggH,*DBKGDEC_qqZZ;
+	TH2F *D0MDECVsM4l_0MH,*D0MDECVsM4l_ggH;
+	TH2F *D0PDECVsM4l_0PH,*D0PDECVsM4l_ggH;
+	TH2F *DL1DECVsM4l_0PL1,*DL1DECVsM4l_ggH;
+	TH2F *DL1ZgsDECVsM4l_0PL1,*DL1ZgsDECVsM4l_ggH;
    
    DVBF2jVsM4l_VBF     = (TH2F*)th2f_file->Get("DVBF2jVsM4l_VBF");
    DVBF2jVsM4l_ggH     = (TH2F*)th2f_file->Get("DVBF2jVsM4l_ggH");
+	DVBF1jVsM4l_VBF     = (TH2F*)th2f_file->Get("DVBF1jVsM4l_VBF");
+	DVBF1jVsM4l_ggH     = (TH2F*)th2f_file->Get("DVBF1jVsM4l_ggH");
    DVHVsM4l_ZH         = (TH2F*)th2f_file->Get("DVHVsM4l_ZH");
    DVHVsM4l_WH         = (TH2F*)th2f_file->Get("DVHVsM4l_WH");
    DVHVsM4l_ggH        = (TH2F*)th2f_file->Get("DVHVsM4l_ggH");
@@ -299,6 +401,40 @@ int main( int argc, char *argv[] )
          
       }
    }
+	
+	if(plotVBF1j)
+	{
+		for ( int i = 0; i < m4l_bins ; i++ )
+		{
+			c1->Clear();
+			frame = new TH1F(("a2"+to_string(i)).c_str(),"",100,0,1);
+			frame->SetMaximum(0.15);
+			frame->Draw();
+			h_temp = DVBF1jVsM4l_VBF->ProjectionY((to_string(i)).c_str(),i,i+1);
+			frame->SetTitle((to_string(int(m4l_slices[i]))+" - "+to_string(int(m4l_slices[i+1]))).c_str());
+			h_temp->SetLineColor(kRed);
+			h_temp->DrawNormalized("HIST SAME");
+			
+			b_temp = DVBF1jVsM4l_ggH->ProjectionY((to_string(i)).c_str(),i,i+1);
+			b_temp->SetLineColor(kBlack);
+			b_temp->DrawNormalized("HIST SAME");
+			
+			frame->GetXaxis()->SetTitle("D_{1jet}^{VBF}");
+			frame->GetYaxis()->SetTitle("a.u.");
+			gStyle->SetOptStat(0);
+			
+			TLegend *legVBF = new TLegend(0.65, 0.75, 0.90, 0.90);
+			tmp_line->SetLineColor(kRed);
+			tmp_line->SetLineStyle(1);
+			legVBF->AddEntry(tmp_line,"VBF","l");//I have no idea why this works?
+			legVBF->AddEntry(b_temp,"ggH","l");
+			legVBF->Draw();
+			
+			if( i < 10 ) c1->SaveAs(("Animations/Dj_0"+to_string(i)+".png").c_str());
+			else c1->SaveAs(("Animations/Dj_"+to_string(i)+".png").c_str());
+			
+		}
+	}
 
    
    if(plotVH)
