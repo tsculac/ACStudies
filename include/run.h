@@ -21,18 +21,20 @@
 #include "Functions.h"
 #include "Settings.h"
 
-void ResetHistos(TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void WriteHistos(TString sample, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void DoVBFLoop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void DoggHLoop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void DoqqZZLoop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void DoWHLoop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void DoZHLoop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void Do0MHLoop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void Do0PHLoop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-void Do0PL1Loop(bool doOnly2jEvents, double lumi, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
 
-Functions *functions = new Functions();
+void ResetHistos(TProfile *p);
+void WriteHistos(TString sample);
+void DoVBFLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoggHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoqqZZLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoWHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoZHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void Dogg0MHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void Dogg0PHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void Dogg0PL1Loop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoVBF0MHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoVBF0PHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoVBF0PL1Loop(Analyzer *analyzer, float lumi, bool only2jEvents);
 
 TString folder_name = "root://lxcms03//data3/Higgs/171005/";
 //TString folder_name = "root://lxcms03//data3/Higgs/170623/";
@@ -74,6 +76,9 @@ TString VBF1500 = folder_name + "VBFH1500" + file_name;
 TString VBF2000 = folder_name + "VBFH2000" + file_name;
 TString VBF2500 = folder_name + "VBFH2500" + file_name;
 TString VBF3000 = folder_name + "VBFH3000" + file_name;
+TString VBFTo4e_MCFM     = folder_name + "VBFTo4eJJ_0PMH125_phantom128" + file_name;
+TString VBFTo4mu_MCFM    = folder_name + "VBFTo4muJJ_0PMH125_phantom128" + file_name;
+TString VBFTo2e2mu_MCFM  = folder_name + "VBFTo2e2muJJ_0PMH125_phantom128" + file_name;
 
 //==================================================================
 //
@@ -212,6 +217,11 @@ TString ggTo2e2mu_0PH  = folder_name + "ggTo2e2mu_0PHH125_MCFM701" + file_name;
 TString ggTo4e_0PL1     = folder_name + "ggTo4e_0PL1H125_MCFM701" + file_name;
 TString ggTo4mu_0PL1    = folder_name + "ggTo4mu_0PL1H125_MCFM701" + file_name;
 TString ggTo2e2mu_0PL1  = folder_name + "ggTo2e2mu_0PL1H125_MCFM701" + file_name;
+
+
+TString VBF_0MH     = folder_name + "VBFH0M_M125" + file_name;
+TString VBF_0PH     = folder_name + "VBFH0PH_M125" + file_name;
+TString VBF_0PL1    = folder_name + "VBFH0L1_M125" + file_name;
 
 
 

@@ -29,6 +29,7 @@
 
 // My files
 #include "Settings.h"
+#include "Functions.h"
 
 using namespace std;
 
@@ -285,6 +286,8 @@ public :
    Float_t         p_HadZH_SIG_ghz1_1_gha4_1_JHUGen_JECNominal;
    Float_t         p_HadZH_mavjj_JECNominal;
    Float_t         p_HadWH_mavjj_JECNominal;
+	Float_t         p_HadZH_mavjj_true_JECNominal;
+	Float_t         p_HadWH_mavjj_true_JECNominal;
    Float_t         p_HadWH_SIG_ghw1_1_JHUGen_JECNominal;
    Float_t         p_HadWH_SIG_ghw1prime2_1E4_JHUGen_JECNominal;
    Float_t         p_HadWH_SIG_ghw2_1_JHUGen_JECNominal;
@@ -806,6 +809,8 @@ public :
    TBranch        *b_p_HadZH_SIG_ghz1_1_gha4_1_JHUGen_JECNominal;   //!
    TBranch        *b_p_HadZH_mavjj_JECNominal;
    TBranch        *b_p_HadWH_mavjj_JECNominal;
+	TBranch        *b_p_HadZH_mavjj_true_JECNominal;
+	TBranch        *b_p_HadWH_mavjj_true_JECNominal;
    TBranch        *b_p_HadWH_SIG_ghw1_1_JHUGen_JECNominal;   //!
    TBranch        *b_p_HadWH_SIG_ghw1prime2_1E4_JHUGen_JECNominal;   //!
    TBranch        *b_p_HadWH_SIG_ghw2_1_JHUGen_JECNominal;   //!
@@ -1090,6 +1095,16 @@ public :
    Float_t _lumi;
    Float_t _xsec;
 	
+	Int_t   m4l_bins;
+	Double_t m4l_slices[99];
+	Int_t   m4l_bins2;
+	Double_t m4l_slices2[99];
+	Int_t   m4l_bins3;
+	Double_t m4l_slices3[99];
+	
+	vector<TString> _s_cat;
+	vector<TString> _s_ac;
+	
 // /170623/ production
 //	Float_t oldWP_VBF2j = 0.478278;
 //	Float_t oldWP_VBF1j = 0.3743;
@@ -1098,30 +1113,54 @@ public :
 //	Float_t oldWP_VH    = 0.941161;
 	
 // /171005/ production
-	Float_t oldWP_VBF2j = 0.141022;
-	Float_t oldWP_VBF1j = 0.3743;
+//	Float_t oldWP_VBF2j = 0.141022;
+//	Float_t oldWP_VBF1j = 0.3743;
+//	Float_t oldWP_WH    = 0.159785;
+//	Float_t oldWP_ZH    = 0.185325;
+//	Float_t oldWP_VH    = 0.173612;
+
+// /171005/ production new cConstants
+	Float_t oldWP_VBF2j = 0.166179;
+	Float_t oldWP_VBF1j = 0.371849;
 	Float_t oldWP_WH    = 0.159785;
 	Float_t oldWP_ZH    = 0.185325;
-	Float_t oldWP_VH    = 0.173612;
+	Float_t oldWP_VH    = 0.880651;
+	
 	
    Float_t DVBF1j_ME;
    Float_t DVBF2j_ME;
    Float_t DWH_ME;
    Float_t DZH_ME;
    Float_t DVH_ME;
-   
-   Float_t DVBF1j_ME_BSM;
-   Float_t DVBF2j_ME_BSM;
-   Float_t DWH_ME_BSM;
-   Float_t DZH_ME_BSM;
-   Float_t DVH_ME_BSM;
-   
+	
    Float_t D_BKG_DEC;
+	Float_t D_BKG_VBF_DEC;
+	
    Float_t D_0MH_DEC;
    Float_t D_0PH_DEC;
    Float_t D_0L1_DEC;
    Float_t D_0L1Zgs_DEC;
-   
+	
+	Float_t D_0MH_VBF_DEC;
+	Float_t D_0PH_VBF_DEC;
+	Float_t D_0L1_VBF_DEC;
+	Float_t D_0L1Zgs_VBF_DEC;
+	
+	Float_t D_0MH_VBF;
+	Float_t D_0PH_VBF;
+	Float_t D_0L1_VBF;
+	Float_t D_0L1Zgs_VBF;
+	
+	Float_t D_0MH_WH;
+	Float_t D_0PH_WH;
+	Float_t D_0L1_WH;
+	Float_t D_0L1Zgs_WH;
+	
+	Float_t D_0MH_ZH;
+	Float_t D_0PH_ZH;
+	Float_t D_0L1_ZH;
+	Float_t D_0L1Zgs_ZH;
+	
    TFile *VBF1j_file;
    TFile *VBF2j_file;
    TFile *WH_file;
@@ -1135,6 +1174,21 @@ public :
    TFile *g_Decay_g4_file;
    TFile *g_Decay_L1_file;
    TFile *g_Decay_L1Zgs_file;
+	
+	TFile *g_VBF_g2_file;
+	TFile *g_VBF_g4_file;
+	TFile *g_VBF_L1_file;
+	TFile *g_VBF_L1Zgs_file;
+	
+	TFile *g_WH_g2_file;
+	TFile *g_WH_g4_file;
+	TFile *g_WH_L1_file;
+	TFile *g_WH_L1Zgs_file;
+	
+	TFile *g_ZH_g2_file;
+	TFile *g_ZH_g4_file;
+	TFile *g_ZH_L1_file;
+	TFile *g_ZH_L1Zgs_file;
    
    TSpline3 *VBF1j_spline;
    TSpline3 *VBF2j_spline;
@@ -1149,17 +1203,44 @@ public :
    TSpline3 *g_Decay_g4_spline;
    TSpline3 *g_Decay_L1_spline;
    TSpline3 *g_Decay_L1Zgs_spline;
+	
+	TSpline3 *g_VBF_g2_spline;
+	TSpline3 *g_VBF_g4_spline;
+	TSpline3 *g_VBF_L1_spline;
+	TSpline3 *g_VBF_L1Zgs_spline;
+	
+	TSpline3 *g_WH_g2_spline;
+	TSpline3 *g_WH_g4_spline;
+	TSpline3 *g_WH_L1_spline;
+	TSpline3 *g_WH_L1Zgs_spline;
+	
+	TSpline3 *g_ZH_g2_spline;
+	TSpline3 *g_ZH_g4_spline;
+	TSpline3 *g_ZH_L1_spline;
+	TSpline3 *g_ZH_L1Zgs_spline;
 
-   Analyzer(TString filename = "", Float_t lumi = 35.9);
+	TProfile *p2j,*p1j;
+	TH1F *histos_1D[Settings::num_of_1D_hist_names];
+	TH2F *histos_2D[Settings::num_of_categories_OnShell][Settings::num_of_2D_hist_names][Settings::num_of_anomalous_couplings];
+	
+   Analyzer(bool splines = false);
    virtual ~Analyzer();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, TString filename);
-   virtual void     Loop(bool only2jEvetns, TProfile *p, TH1F *histos_1D[Settings::num_of_1D_hist_names], TH2F *histos_2D[Settings::num_of_2D_hist_names]);
-   virtual void     LoopForEff(bool shiftWP, bool only2jEvents, TH1F *histos_1D[Settings::num_of_1D_hist_names]);
-   virtual void     LoopForCat(bool newArbitration, TH1F *histo);
-	virtual void     LoopForNJets(TH1F *histo);
+	virtual void     LoadConstants();
+	virtual void     DeclareHistos();
+	virtual void     ResetHistos();
+	virtual void     RebinHistos();
+	virtual void     RebinHistosSplines();
+	virtual void     RebinHistosSplinesqq();
+	virtual void     WriteHistos(TString sample);
+	virtual void     WriteGraphs(TString sample);
+	virtual void     WriteSplines(TString sample);
+	virtual void     FillHistos(TString filename, Float_t lumi, bool only2jEvents );
+	virtual void     Loop(bool only2jEvetns);
+   virtual void     LoopForEff(TString filename, Float_t lumi, bool shiftWP, bool only2jEvents, TH1F *hist_1D[Settings::num_of_1D_hist_names]);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    virtual float getDVBF2jetsConstant_old(float ZZMass);
@@ -1182,26 +1263,53 @@ public :
 #endif
 
 #ifdef Analyzer_cxx
-Analyzer::Analyzer(TString filename, Float_t lumi) : fChain(0)
+Analyzer::Analyzer(bool splines) : fChain(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-   _lumi = lumi;
-   input_file_name = filename;
-   
-   TTree *tree;
-   
-   inputfile = TFile::Open(filename);
-   TDirectory * dir = (TDirectory*)inputfile->Get(filename);
-   tree = (TTree*)inputfile->Get("ZZTree/candTree");
-   
-   Init(tree,filename);
+	m4l_bins     = 18;
+	m4l_slices[0]=110;m4l_slices[1]=140;m4l_slices[2]=150;m4l_slices[3]=160;m4l_slices[4]=170;m4l_slices[5]=180;m4l_slices[6]=190;m4l_slices[7]=200;m4l_slices[8]=250;m4l_slices[9]=300;m4l_slices[10]=400;
+	m4l_slices[11]=500;m4l_slices[12]=600;m4l_slices[13]=700;m4l_slices[14]=800;m4l_slices[15]=900;m4l_slices[16]=1500;m4l_slices[17]=2500;m4l_slices[18]=3500;
+
+	m4l_bins3     = 13;
+	m4l_slices3[0]=110;m4l_slices3[1]=140;m4l_slices3[2]=180;m4l_slices3[3]=220;m4l_slices3[4]=300;m4l_slices3[5]=400;m4l_slices3[6]=500;m4l_slices3[7]=600;m4l_slices3[8]=700;m4l_slices3[9]=800;m4l_slices3[10]=1500;
+	m4l_slices3[11]=2000;m4l_slices3[12]=3000;m4l_slices3[13]=4000;
+	
+	if (splines)
+	{
+		m4l_bins     = 10;
+		m4l_slices[0]=70;m4l_slices[1]=125;m4l_slices[2]=140;m4l_slices[3]=160;m4l_slices[4]=250;m4l_slices[5]=470;m4l_slices[6]=780;m4l_slices[7]=1200;m4l_slices[8]=1700;m4l_slices[9]=2160;m4l_slices[10]=3500;
+		
+		m4l_bins3     = 10;
+  	m4l_slices3[0]=70;m4l_slices3[1]=125;m4l_slices3[2]=140;m4l_slices3[3]=160;m4l_slices3[4]=250;m4l_slices3[5]=470;m4l_slices3[6]=780;m4l_slices3[7]=1200;m4l_slices3[8]=1700;m4l_slices3[9]=2160;m4l_slices3[10]=3500;
+		//=======================================================
+	}
+	
+	DeclareHistos();
+	
+	LoadConstants();
 }
 
 Analyzer::~Analyzer()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
+}
+
+void Analyzer::FillHistos(TString filename, Float_t lumi, bool only2jEvents)
+{
+	// if parameter tree is not specified (or zero), connect the file
+	// used to generate this class and read the Tree.
+	_lumi = lumi;
+	input_file_name = filename;
+	
+	TTree *tree;
+	inputfile = TFile::Open(filename);
+	TDirectory * dir = (TDirectory*)inputfile->Get(filename);
+	tree = (TTree*)inputfile->Get("ZZTree/candTree");
+	
+	Init(tree,filename);
+	Loop(only2jEvents);
 }
 
 Int_t Analyzer::GetEntry(Long64_t entry)
@@ -1541,6 +1649,8 @@ void Analyzer::Init(TTree *tree, TString filename)
    fChain->SetBranchAddress("p_HadZH_SIG_ghz1_1_gha4_1_JHUGen_JECNominal", &p_HadZH_SIG_ghz1_1_gha4_1_JHUGen_JECNominal, &b_p_HadZH_SIG_ghz1_1_gha4_1_JHUGen_JECNominal);
    fChain->SetBranchAddress("p_HadZH_mavjj_JECNominal", &p_HadZH_mavjj_JECNominal, &b_p_HadZH_mavjj_JECNominal);
    fChain->SetBranchAddress("p_HadWH_mavjj_JECNominal", &p_HadWH_mavjj_JECNominal, &b_p_HadWH_mavjj_JECNominal);
+	fChain->SetBranchAddress("p_HadZH_mavjj_true_JECNominal", &p_HadZH_mavjj_true_JECNominal, &b_p_HadZH_mavjj_true_JECNominal);
+	fChain->SetBranchAddress("p_HadWH_mavjj_true_JECNominal", &p_HadWH_mavjj_true_JECNominal, &b_p_HadWH_mavjj_true_JECNominal);
    fChain->SetBranchAddress("p_HadWH_SIG_ghw1_1_JHUGen_JECNominal", &p_HadWH_SIG_ghw1_1_JHUGen_JECNominal, &b_p_HadWH_SIG_ghw1_1_JHUGen_JECNominal);
    fChain->SetBranchAddress("p_HadWH_SIG_ghw1prime2_1E4_JHUGen_JECNominal", &p_HadWH_SIG_ghw1prime2_1E4_JHUGen_JECNominal, &b_p_HadWH_SIG_ghw1prime2_1E4_JHUGen_JECNominal);
    fChain->SetBranchAddress("p_HadWH_SIG_ghw2_1_JHUGen_JECNominal", &p_HadWH_SIG_ghw2_1_JHUGen_JECNominal, &b_p_HadWH_SIG_ghw2_1_JHUGen_JECNominal);

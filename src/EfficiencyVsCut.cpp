@@ -5,6 +5,7 @@
 
 // ROOT
 #include "TApplication.h"
+#include "TMultiGraph.h"
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TChain.h"
@@ -31,10 +32,11 @@ int main( int argc, char *argv[] )
 	bool only2jEvents = false;
 	bool includeMCFM = false; //Slows down a lot
 	bool useqqZZ_ext = false; //qqZZ does not have enough statistic
-   
-   TFile *f = new TFile("EffVsCut.root", "recreate");
+
+	Analyzer *analyzer = new Analyzer();
+	TFile *f = new TFile("EffVsCut.root", "recreate");
    TH1F *histos_1D_old[Settings::num_of_1D_hist_names];
-   
+	
    
    TString folder_name_old = "./Moriond_2017/";
 //   TString folder_name_new = "root://lxcms03//data3/Higgs/170623/";
@@ -66,9 +68,9 @@ int main( int argc, char *argv[] )
    histos_1D_old[Settings::M4l_DVH]    = new TH1F("h_VH_old", "h_VH_old", nbins, 0, 1);
 
 
-   Analyzer *_VBF125_old    = new Analyzer(VBF125_old, lumi);    _VBF125_old->LoopForEff( shiftWP,only2jEvents,histos_1D_old);
+   analyzer->LoopForEff(VBF125_old, lumi,shiftWP,only2jEvents,histos_1D_old);
+	f->cd();
    histos_1D_old[Settings::M4l_DVBF2j]->SetName("DVBF2j_VBF_old");
-   f->cd();
    histos_1D_old[Settings::M4l_DVBF2j]->Write();
 	histos_1D_old[Settings::M4l_DVBF1j]->SetName("DVBF1j_VBF_old");
 	histos_1D_old[Settings::M4l_DVBF1j]->Write();
@@ -82,9 +84,9 @@ int main( int argc, char *argv[] )
    histos_1D_old[Settings::M4l_DVBF2j]->Reset();
 	histos_1D_old[Settings::M4l_DVBF1j]->Reset();
    histos_1D_old[Settings::M4l_DVH]->Reset();
-   Analyzer *_gg125_old     = new Analyzer(gg125_old, lumi);     _gg125_old->LoopForEff( shiftWP,only2jEvents,histos_1D_old);
+   analyzer->LoopForEff(gg125_old, lumi,shiftWP,only2jEvents,histos_1D_old);
+	f->cd();
    histos_1D_old[Settings::M4l_DVBF2j]->SetName("DVBF2j_ggH_old");
-   f->cd();
    histos_1D_old[Settings::M4l_DVBF2j]->Write();
 	histos_1D_old[Settings::M4l_DVBF1j]->SetName("DVBF1j_ggH_old");
 	histos_1D_old[Settings::M4l_DVBF1j]->Write();
@@ -99,9 +101,9 @@ int main( int argc, char *argv[] )
    histos_1D_old[Settings::M4l_DVBF2j]->Reset();
 	histos_1D_old[Settings::M4l_DVBF1j]->Reset();
    histos_1D_old[Settings::M4l_DVH]->Reset();
-   Analyzer *_Wplus125_old  = new Analyzer(Wplus125_old, lumi);  _Wplus125_old->LoopForEff( shiftWP,only2jEvents,histos_1D_old);
-   Analyzer *_Wminus125_old = new Analyzer(Wminus125_old, lumi); _Wminus125_old->LoopForEff( shiftWP,only2jEvents,histos_1D_old);
-	if (mergeInto_VH) {Analyzer *_Z125_old      = new Analyzer(Z125_old, lumi);      _Z125_old->LoopForEff( shiftWP,only2jEvents,histos_1D_old);}
+   analyzer->LoopForEff(Wplus125_old, lumi,shiftWP,only2jEvents,histos_1D_old);
+   analyzer->LoopForEff(Wminus125_old, lumi,shiftWP,only2jEvents,histos_1D_old);
+	if (mergeInto_VH) {analyzer->LoopForEff(Z125_old, lumi,shiftWP,only2jEvents,histos_1D_old);}
    histos_1D_old[Settings::M4l_DVBF2j]->SetName("DVBF2j_WH_old");
    f->cd();
    histos_1D_old[Settings::M4l_DVBF2j]->Write();
@@ -116,7 +118,7 @@ int main( int argc, char *argv[] )
 		histos_1D_old[Settings::M4l_DVBF2j]->Reset();
 		histos_1D_old[Settings::M4l_DVBF1j]->Reset();
 		histos_1D_old[Settings::M4l_DVH]->Reset();
-		Analyzer *_Z125_old      = new Analyzer(Z125_old, lumi);      _Z125_old->LoopForEff( shiftWP,only2jEvents,histos_1D_old);
+		analyzer->LoopForEff(Z125_old, lumi,shiftWP,only2jEvents,histos_1D_old);
 		histos_1D_old[Settings::M4l_DVBF2j]->SetName("DVBF2j_ZH_old");
 		f->cd();
 		histos_1D_old[Settings::M4l_DVBF2j]->Write();
@@ -132,7 +134,7 @@ int main( int argc, char *argv[] )
    histos_1D_old[Settings::M4l_DVBF2j]->Reset();
 	histos_1D_old[Settings::M4l_DVBF1j]->Reset();
    histos_1D_old[Settings::M4l_DVH]->Reset();
-   Analyzer *_qqZZ_old      = new Analyzer(qqZZ_old, lumi);      _qqZZ_old->LoopForEff( shiftWP,only2jEvents,histos_1D_old);
+   analyzer->LoopForEff(qqZZ_old, lumi,shiftWP,only2jEvents,histos_1D_old);
    histos_1D_old[Settings::M4l_DVBF2j]->SetName("DVBF2j_qqZZ_old");
    f->cd();
    histos_1D_old[Settings::M4l_DVBF2j]->Write();
@@ -144,8 +146,7 @@ int main( int argc, char *argv[] )
    oldeff_Djj_qqZZ=histos_1D_old[Settings::M4l_DVBF2j]->Integral(nbins/2,nbins)/histos_1D_old[Settings::M4l_DVBF2j]->Integral();
 	oldeff_Dj_qqZZ=histos_1D_old[Settings::M4l_DVBF1j]->Integral(nbins/2,nbins)/histos_1D_old[Settings::M4l_DVBF1j]->Integral();
 
-
-
+   cout << "======================================================================================" << endl;
    cout << "Old efficincy of DVBF2j in VBF sample = " << oldeff_Djj_VBF << endl;
    cout << "Old efficincy of DVBF2j in ggH sample = " << oldeff_Djj_ggH << endl;
 	cout << "Old efficincy of DVBF2j in qqZZ sample = " << oldeff_Djj_qqZZ << endl << endl;
@@ -160,9 +161,13 @@ int main( int argc, char *argv[] )
 	}
 	cout << "Old efficincy of DVH in ggH sample = " << oldeff_DVH_ggH << endl;
    cout << "Old efficincy of DVH in qqZZ sample = " << oldeff_DVH_qqZZ << endl;
+	cout << "======================================================================================" << endl;
 	
 	
    TString VBF125_new           = folder_name_new + "VBFH125" + file_name;
+	TString VBFTo4e_MCFM_new     = folder_name_new + "VBFTo4eJJ_0PMH125_phantom128" + file_name;
+	TString VBFTo4mu_MCFM_new    = folder_name_new + "VBFTo4muJJ_0PMH125_phantom128" + file_name;
+	TString VBFTo2e2mu_MCFM_new  = folder_name_new + "VBFTo2e2muJJ_0PMH125_phantom128" + file_name;
    TString gg125_new            = folder_name_new + "ggH125" + file_name;
 	TString gg125_MiNLO_new      = folder_name_new + "ggH125_minloHJJ" + file_name;
 	TString gg125_NNLOPS_new     = folder_name_new + "ggH125_NNLOPS" + file_name;
@@ -200,7 +205,7 @@ int main( int argc, char *argv[] )
 	histos_1D_new[Settings::M4l_DVBF1j] = new TH1F("h_VBF1j_new", "h_VBF1j_new", nbins, 0, 1);
    histos_1D_new[Settings::M4l_DVH]    = new TH1F("h_VH_new", "h_VH_new", nbins, 0, 1);
 
-   Analyzer *_VBF125_new    = new Analyzer(VBF125_new, lumi);    _VBF125_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+   analyzer->LoopForEff(VBF125_new, lumi,shiftWP,only2jEvents,histos_1D_new);
    histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_VBF_new");
    f->cd();
    histos_1D_new[Settings::M4l_DVBF2j]->Write();
@@ -242,7 +247,7 @@ int main( int argc, char *argv[] )
 
 
 	// Run over new ggH POWHEG sample
-   Analyzer *_gg125_new     = new Analyzer(gg125_new, lumi);     _gg125_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+   analyzer->LoopForEff(gg125_new, lumi,shiftWP,only2jEvents,histos_1D_new);
    histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_ggH_new");
    f->cd();
    histos_1D_new[Settings::M4l_DVBF2j]->Write();
@@ -290,7 +295,7 @@ int main( int argc, char *argv[] )
    histos_1D_new[Settings::M4l_DVH]->Reset();
 
 	// Run over new ggH NNLOPS sample
-	Analyzer *_gg125_NNLOPS_new     = new Analyzer(gg125_NNLOPS_new, lumi);     _gg125_NNLOPS_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+	analyzer->LoopForEff(gg125_NNLOPS_new, lumi,shiftWP,only2jEvents,histos_1D_new);
 	histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_ggH_NNLOPS_new");
 	f->cd();
 	histos_1D_new[Settings::M4l_DVBF2j]->Write();
@@ -338,7 +343,7 @@ int main( int argc, char *argv[] )
 	histos_1D_new[Settings::M4l_DVH]->Reset();
 
 	// Run over new ggH MiNLO sample
-	Analyzer *_gg125_MiNLO_new     = new Analyzer(gg125_MiNLO_new, lumi);     _gg125_MiNLO_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+	analyzer->LoopForEff(gg125_MiNLO_new, lumi,shiftWP,only2jEvents,histos_1D_new);
 	histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_ggH_MiNLO_new");
 	f->cd();
 	histos_1D_new[Settings::M4l_DVBF2j]->Write();
@@ -388,12 +393,12 @@ int main( int argc, char *argv[] )
 	// Run over new ggH MCFM sample
 	if ( includeMCFM )
 	{
-		Analyzer *_ggTo4e_MCFM_new      = new Analyzer(ggTo4e_MCFM_new, lumi);      _ggTo4e_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-		Analyzer *_ggTo4mu_MCFM_new     = new Analyzer(ggTo4mu_MCFM_new, lumi);     _ggTo4mu_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-		Analyzer *_ggTo2e2mu_MCFM_new   = new Analyzer(ggTo2e2mu_MCFM_new, lumi);   _ggTo2e2mu_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-		Analyzer *_ggTo2e2tau_MCFM_new  = new Analyzer(ggTo2e2tau_MCFM_new, lumi);  _ggTo2e2tau_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-		Analyzer *_ggTo2mu2tau_MCFM_new = new Analyzer(ggTo2mu2tau_MCFM_new, lumi); _ggTo2mu2tau_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-		Analyzer *_ggTo4tau_MCFM_new    = new Analyzer(ggTo4tau_MCFM_new, lumi);    _ggTo4tau_MCFM_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		analyzer->LoopForEff(ggTo4e_MCFM_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+		analyzer->LoopForEff(ggTo4mu_MCFM_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+		analyzer->LoopForEff(ggTo2e2mu_MCFM_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+		analyzer->LoopForEff(ggTo2e2tau_MCFM_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+		analyzer->LoopForEff(ggTo2mu2tau_MCFM_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+		analyzer->LoopForEff(ggTo4tau_MCFM_new, lumi,shiftWP,only2jEvents,histos_1D_new);
 		
 		histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_ggH_MCFM_new");
 		f->cd();
@@ -444,9 +449,9 @@ int main( int argc, char *argv[] )
    
 	
 	// Run over new VH samples
-   Analyzer *_Wplus125_new  = new Analyzer(Wplus125_new, lumi);  _Wplus125_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-   Analyzer *_Wminus125_new = new Analyzer(Wminus125_new, lumi); _Wminus125_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-	if (mergeInto_VH) {Analyzer *_Z125_new      = new Analyzer(Z125_new, lumi);      _Z125_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);}
+   analyzer->LoopForEff(Wplus125_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+   analyzer->LoopForEff(Wminus125_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+	if (mergeInto_VH) {analyzer->LoopForEff(Z125_new, lumi,shiftWP,only2jEvents,histos_1D_new);}
    histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_WH_new");
    f->cd();
    histos_1D_new[Settings::M4l_DVBF2j]->Write();
@@ -471,11 +476,12 @@ int main( int argc, char *argv[] )
    gr_DVH_WH->SetMarkerStyle(1);
 	
 	histos_1D_new[Settings::M4l_DVBF2j]->Reset();
+	histos_1D_new[Settings::M4l_DVBF1j]->Reset();
 	histos_1D_new[Settings::M4l_DVH]->Reset();
 	
 	if(!mergeInto_VH)
 	{
-		Analyzer *_Z125_new      = new Analyzer(Z125_new, lumi);      _Z125_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
+		analyzer->LoopForEff(Z125_new, lumi,shiftWP,only2jEvents,histos_1D_new);
 		histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_ZH_new");
 		f->cd();
 		histos_1D_new[Settings::M4l_DVBF2j]->Write();
@@ -508,8 +514,8 @@ int main( int argc, char *argv[] )
    
 	
 	// Run over new qqZZ sample
-   Analyzer *_qqZZ_new     = new Analyzer(qqZZ_new, lumi);     _qqZZ_new->LoopForEff( shiftWP,only2jEvents,histos_1D_new);
-	if (useqqZZ_ext) { Analyzer *_qqZZext_new = new Analyzer(qqZZext_new, lumi);  _qqZZext_new->LoopForEff(shiftWP, only2jEvents, histos_1D_new);}
+   analyzer->LoopForEff(qqZZ_new, lumi,shiftWP,only2jEvents,histos_1D_new);
+	if (useqqZZ_ext) { analyzer->LoopForEff(qqZZext_new, lumi,shiftWP,only2jEvents,histos_1D_new);}
    histos_1D_new[Settings::M4l_DVBF2j]->SetName("DVBF2j_qqZZ_new");
    f->cd();
    histos_1D_new[Settings::M4l_DVBF2j]->Write();
