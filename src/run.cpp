@@ -9,20 +9,21 @@ using namespace std;
 */
 int main( int argc, char *argv[] )
 {
-	Float_t  lumi = 35.8;
+	Float_t  lumi = 35.8671;
 	bool only2jEvents = false;
 	
 	TFile *fOutControlHistos;
 	TFile *fOutHistos;
 	
-	if(only2jEvents) fOutHistos = new TFile("EffVsM4l_2jEvents.root", "recreate");
-	else fOutHistos = new TFile("EffVsM4l_AllEvents.root", "recreate");
+	if(only2jEvents) fOutHistos = new TFile("EffVsM4l_2jEvents_lumi3586.root", "recreate");
+	else fOutHistos = new TFile("EffVsM4l_AllEvents_lumi3586.root", "recreate");
 	
 	
-	if(only2jEvents) fOutControlHistos = new TFile("DVsM4l_2jEvents.root", "recreate");
-	else fOutControlHistos = new TFile("DVsM4l_AllEvents.root", "recreate");
+	if(only2jEvents) fOutControlHistos = new TFile("DVsM4l_2jEvents_lumi3586.root", "recreate");
+	else fOutControlHistos = new TFile("DVsM4l_AllEvents_lumi3586.root", "recreate");
 	
 	Analyzer *analyzer = new Analyzer();
+	
    //==================================================================
    //
    //    VBF SAMPLES
@@ -35,6 +36,10 @@ int main( int argc, char *argv[] )
 	analyzer->WriteGraphs("VBF");
 	analyzer->ResetHistos();
 
+	DoVBF125Loop(analyzer,lumi,only2jEvents);
+	fOutControlHistos->cd();
+	analyzer->WriteHistos("VBF125");
+	analyzer->ResetHistos();
    //==================================================================
    //
    //    ggH SAMPLES
@@ -46,6 +51,11 @@ int main( int argc, char *argv[] )
 	fOutHistos->cd();
 	analyzer->WriteGraphs("ggH");
 	analyzer->ResetHistos();
+	
+	DoggH125Loop(analyzer,lumi,only2jEvents);
+	fOutControlHistos->cd();
+	analyzer->WriteHistos("ggH125");
+	analyzer->ResetHistos();
    //==================================================================
    //
    //    qqZZ BACKGROUND
@@ -56,6 +66,26 @@ int main( int argc, char *argv[] )
 	analyzer->WriteHistos("qqZZ");
 	fOutHistos->cd();
 	analyzer->WriteGraphs("qqZZ");
+	analyzer->ResetHistos();
+	
+	//==================================================================
+	//
+	//    ggZZ BACKGROUND
+	//
+	//==================================================================
+	DoggZZLoop(analyzer,lumi,only2jEvents);
+	fOutControlHistos->cd();
+	analyzer->WriteHistos("ggZZ");
+	analyzer->ResetHistos();
+	
+	//==================================================================
+	//
+	//    DATA FOR Z+X BACKGROUND
+	//
+	//==================================================================
+	DoZXLoop(analyzer,lumi,only2jEvents);
+	fOutControlHistos->cd();
+	analyzer->WriteHistos("ZpX");
 	analyzer->ResetHistos();
 
    //==================================================================
@@ -81,19 +111,19 @@ int main( int argc, char *argv[] )
 	fOutControlHistos->cd();
 	analyzer->WriteHistos("gg0PL1");
 	analyzer->ResetHistos();
-	
+
 	// VBF0MH
 	DoVBF0MHLoop(analyzer,lumi,only2jEvents);
 	fOutControlHistos->cd();
 	analyzer->WriteHistos("VBF0MH");
 	analyzer->ResetHistos();
-	
+
 	// VBF0PH
 	DoVBF0PHLoop(analyzer,lumi,only2jEvents);
 	fOutControlHistos->cd();
 	analyzer->WriteHistos("VBF0PH");
 	analyzer->ResetHistos();
-	
+
 	// VBF0PL1
 	DoVBF0PL1Loop(analyzer,lumi,only2jEvents);
 	fOutControlHistos->cd();
@@ -106,12 +136,17 @@ int main( int argc, char *argv[] )
    //
    //==================================================================
 	analyzer->RebinHistos();
-	
+
 	DoWHLoop(analyzer,lumi,only2jEvents);
 	fOutControlHistos->cd();
 	analyzer->WriteHistos("WH");
 	fOutHistos->cd();
 	analyzer->WriteGraphs("WH");
+	analyzer->ResetHistos();
+	
+	DoWH125Loop(analyzer,lumi,only2jEvents);
+	fOutControlHistos->cd();
+	analyzer->WriteHistos("WH125");
 	analyzer->ResetHistos();
 
    //==================================================================
@@ -126,7 +161,10 @@ int main( int argc, char *argv[] )
 	analyzer->WriteGraphs("ZH");
 	analyzer->ResetHistos();
 
-
+	DoZH125Loop(analyzer,lumi,only2jEvents);
+	fOutControlHistos->cd();
+	analyzer->WriteHistos("ZH125");
+	analyzer->ResetHistos();
    //==================================================================
 
    fOutControlHistos->Close();
@@ -136,7 +174,10 @@ int main( int argc, char *argv[] )
 }
 
 
-
+void DoZXLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
+{
+	analyzer->FillHistos(Data,lumi,only2jEvents);
+}
 
 void DoVBFLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 {
@@ -172,6 +213,11 @@ void DoVBFLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 
 }
 
+void DoVBF125Loop(Analyzer *analyzer, float lumi, bool only2jEvents)
+{
+	analyzer->FillHistos(VBF125,lumi,only2jEvents);
+}
+
 void DoggHLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 {
 	analyzer->FillHistos(gg115,lumi,only2jEvents);
@@ -205,10 +251,25 @@ void DoggHLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 	analyzer->FillHistos(gg3000,lumi,only2jEvents);
 }
 
+void DoggH125Loop(Analyzer *analyzer, float lumi, bool only2jEvents)
+{
+	analyzer->FillHistos(gg125,lumi,only2jEvents);
+}
+
 void DoqqZZLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 {
 	analyzer->FillHistos(qqZZ,lumi,only2jEvents);
 	analyzer->FillHistos(qqZZext,lumi,only2jEvents);
+}
+
+void DoggZZLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
+{
+	analyzer->FillHistos(ggZZ4e,lumi,only2jEvents);
+	analyzer->FillHistos(ggZZ4mu,lumi,only2jEvents);
+	analyzer->FillHistos(ggZZ4tau,lumi,only2jEvents);
+	analyzer->FillHistos(ggZZ2e2mu,lumi,only2jEvents);
+	analyzer->FillHistos(ggZZ2e2tau,lumi,only2jEvents);
+	analyzer->FillHistos(ggZZ2mu2tau,lumi,only2jEvents);
 }
 
 void DoWHLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
@@ -254,6 +315,12 @@ void DoWHLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 	analyzer->FillHistos(Wminus230,lumi,only2jEvents);
 }
 
+void DoWH125Loop(Analyzer *analyzer, float lumi, bool only2jEvents)
+{
+	analyzer->FillHistos(Wminus125,lumi,only2jEvents);
+	analyzer->FillHistos(Wplus125,lumi,only2jEvents);
+}
+
 void DoZHLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 {
 	analyzer->FillHistos(Z115,lumi,only2jEvents);
@@ -275,6 +342,11 @@ void DoZHLoop(Analyzer *analyzer, float lumi, bool only2jEvents)
 	analyzer->FillHistos(Z200,lumi,only2jEvents);
 //	analyzer->FillHistos(Z210,lumi,only2jEvents);
 	analyzer->FillHistos(Z230,lumi,only2jEvents);
+}
+
+void DoZH125Loop(Analyzer *analyzer, float lumi, bool only2jEvents)
+{
+	analyzer->FillHistos(Z125,lumi,only2jEvents);
 }
 
 void Dogg0MHLoop(Analyzer *analyzer, float lumi, bool only2jEvents)

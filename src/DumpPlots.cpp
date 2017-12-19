@@ -28,7 +28,7 @@ void DoEfficiencyVsM4lPlots(bool only2jEvents = false)
 {
 	TFile* tgraph_file;
 	if(only2jEvents) tgraph_file = TFile::Open("EffVsM4l_2jEvents.root");
-	else tgraph_file = TFile::Open("EffVsM4l_AllEvents_testing.root");
+	else tgraph_file = TFile::Open("EffVsM4l_AllEvents.root");
 	
 	TGraphErrors *VBF_Djj_tgraph, *ggH_Djj_tgraph, *WH_Djj_tgraph, *ZH_Djj_tgraph, *qqZZ_Djj_tgraph;
 	TGraphErrors *VBF_DVH_tgraph,*ggH_DVH_tgraph,*WH_DVH_tgraph,*ZH_DVH_tgraph,*qqZZ_DVH_tgraph;
@@ -251,13 +251,13 @@ void PlotInM4lSlices_1SIG1BKG(TString disc_name,
 										TString xTitle,  TString folder="", float max = 0.15, int setup = 1)
 {
 	Int_t   m4l_bins1     = 18;
-	Double_t m4l_slices1[] = {110,140,150,160,170,180,190,200,250,300,400,500,600,700,800,900,1000,2000,3000};
+	Double_t m4l_slices1[] = {105,140,150,160,170,180,190,220,250,300,400,500,600,700,800,900,1000,2000,3000};
 	
 	Int_t   m4l_bins2     = 10;
-	Double_t m4l_slices2[] = {110,120,130,140,150,160,170,180,190,200,250};
+	Double_t m4l_slices2[] = {105,120,130,140,150,160,170,180,190,220,250};
 	
 	Int_t   m4l_bins3     = 13;
-	Double_t m4l_slices3[] = {110,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
+	Double_t m4l_slices3[] = {105,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
 	
 	Int_t m4l_bins = m4l_bins1;
 	if(setup == 1) m4l_bins = m4l_bins1;
@@ -269,6 +269,13 @@ void PlotInM4lSlices_1SIG1BKG(TString disc_name,
 	if(setup == 2) for(int i=0; i<= m4l_bins2; i++){ m4l_slices[i]=m4l_slices2[i];}
 	if(setup == 3) for(int i=0; i<= m4l_bins3; i++){ m4l_slices[i]=m4l_slices3[i];}
 	
+	Int_t n_plots;
+	Int_t dn_mass[3];
+	Int_t up_mass[3];
+	if(setup == 1) { n_plots = 3; dn_mass[0]=0;dn_mass[1]=7;dn_mass[2]=10; up_mass[0]=1;up_mass[1]=10;up_mass[2]=18; }
+	if(setup == 2) { n_plots = 1; dn_mass[0]=0; up_mass[0]=3;}
+	if(setup == 3) { n_plots = 3; dn_mass[0]=0;dn_mass[1]=3;dn_mass[2]=5; up_mass[0]=1;up_mass[1]=5;up_mass[2]=13; }
+	
 	TH1D *sig_temp,*bkg1_temp;
 	TH1 *frame;
 	TLine *tmp_line = new TLine(1,1,1,1);//hack for TLegend
@@ -277,18 +284,18 @@ void PlotInM4lSlices_1SIG1BKG(TString disc_name,
 	TCanvas *c1;
 	c1 = new TCanvas("c1_"+disc_name+folder,"c1_"+disc_name,900,900);
 	
-	for ( int i = 0; i < m4l_bins ; i++ )
+	for ( int i_plot = 0; i_plot < n_plots ; i_plot++ )
 	{
 		c1->Clear();
-		frame = new TH1F("a_"+disc_name+"_"+to_string(i),"",100,0,1);
+		frame = new TH1F("a_"+disc_name+"_"+folder+"_"+to_string(i_plot),"",100,0,1);
 		frame->SetMaximum(max);
 		frame->Draw();
-		sig_temp = signal->ProjectionY((to_string(i)).c_str(),i,i+1);
-		frame->SetTitle((to_string(int(m4l_slices[i]))+" - "+to_string(int(m4l_slices[i+1]))).c_str());
+		sig_temp = signal->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
+		frame->SetTitle((to_string(int(m4l_slices[dn_mass[i_plot]]))+" - "+to_string(int(m4l_slices[up_mass[i_plot]]))+" GeV").c_str());
 		sig_temp->SetLineColor(col1);
 		sig_temp->SetLineStyle(style1);
 		sig_temp->DrawNormalized("HIST SAME");
-		bkg1_temp = bkg1->ProjectionY((to_string(i)).c_str(),i,i+1);
+		bkg1_temp = bkg1->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
 		bkg1_temp->SetLineColor(col2);
 		bkg1_temp->SetLineStyle(style2);
 		bkg1_temp->DrawNormalized("HIST SAME");
@@ -306,8 +313,8 @@ void PlotInM4lSlices_1SIG1BKG(TString disc_name,
 		leg->AddEntry(tmp_line1,bkg1_name,"l");
 		leg->Draw();
 		
-		if( i < 10 ) c1->SaveAs("Animations/" + folder + "/" + disc_name + "_0"+to_string(i)+".png");
-		else c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i)+".png");
+		c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i_plot)+".png");
+		c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i_plot)+".pdf");
 	}
 	
 }
@@ -320,13 +327,13 @@ void PlotInM4lSlices_2SIG1BKG(TString disc_name,
 										TString xTitle,  TString folder="", float max = 0.15, int setup = 1)
 {
 	Int_t   m4l_bins1     = 18;
-	Double_t m4l_slices1[] = {110,140,150,160,170,180,190,200,250,300,400,500,600,700,800,900,1000,2000,3000};
+	Double_t m4l_slices1[] = {105,140,150,160,170,180,190,220,250,300,400,500,600,700,800,900,1000,2000,3000};
 	
 	Int_t   m4l_bins2     = 10;
-	Double_t m4l_slices2[] = {110,120,130,140,150,160,170,180,190,200,250};
+	Double_t m4l_slices2[] = {105,120,130,140,150,160,170,180,190,220,250};
 	
 	Int_t   m4l_bins3     = 13;
-	Double_t m4l_slices3[] = {110,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
+	Double_t m4l_slices3[] = {105,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
 	
 	Int_t m4l_bins = m4l_bins1;
 	if(setup == 1) m4l_bins = m4l_bins1;
@@ -338,6 +345,13 @@ void PlotInM4lSlices_2SIG1BKG(TString disc_name,
 	if(setup == 2) for(int i=0; i<= m4l_bins2; i++){ m4l_slices[i]=m4l_slices2[i];}
 	if(setup == 3) for(int i=0; i<= m4l_bins3; i++){ m4l_slices[i]=m4l_slices3[i];}
 	
+	Int_t n_plots;
+	Int_t dn_mass[3];
+	Int_t up_mass[3];
+	if(setup == 1) { n_plots = 3; dn_mass[0]=0;dn_mass[1]=7;dn_mass[2]=10; up_mass[0]=1;up_mass[1]=10;up_mass[2]=18; }
+	if(setup == 2) { n_plots = 1; dn_mass[0]=0; up_mass[0]=3;}
+	if(setup == 3) { n_plots = 3; dn_mass[0]=0;dn_mass[1]=3;dn_mass[2]=5; up_mass[0]=1;up_mass[1]=5;up_mass[2]=13; }
+	
 	TH1D *sig1_temp,*sig2_temp,*bkg1_temp;
 	TH1 *frame;
 	TLine *tmp_lines1 = new TLine(1,1,1,1);//hack for TLegend
@@ -347,25 +361,25 @@ void PlotInM4lSlices_2SIG1BKG(TString disc_name,
 	TCanvas *c1;
 	c1 = new TCanvas("c1_"+disc_name+folder,"c1_"+disc_name,900,900);
 	
-	for ( int i = 0; i < m4l_bins ; i++ )
+	for ( int i_plot = 0; i_plot < n_plots ; i_plot++ )
 	{
 		c1->Clear();
-		frame = new TH1F("a_"+disc_name+"_"+to_string(i),"",100,0,1);
+		frame = new TH1F("a_"+disc_name+"_"+folder+"_"+to_string(i_plot),"",100,0,1);
 		frame->SetMaximum(max);
 		frame->Draw();
-		sig1_temp = signal1->ProjectionY((to_string(i)).c_str(),i,i+1);
-		frame->SetTitle((to_string(int(m4l_slices[i]))+" - "+to_string(int(m4l_slices[i+1]))).c_str());
+		sig1_temp = signal1->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
+		frame->SetTitle((to_string(int(m4l_slices[dn_mass[i_plot]]))+" - "+to_string(int(m4l_slices[up_mass[i_plot]]))+" GeV").c_str());
 		sig1_temp->SetLineColor(col11);
 		sig1_temp->SetLineStyle(style11);
 		sig1_temp->DrawNormalized("HIST SAME");
 		
-		sig2_temp = signal2->ProjectionY((to_string(i)).c_str(),i,i+1);
-		frame->SetTitle((to_string(int(m4l_slices[i]))+" - "+to_string(int(m4l_slices[i+1]))).c_str());
+		sig2_temp = signal2->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
+		frame->SetTitle((to_string(int(m4l_slices[dn_mass[i_plot]]))+" - "+to_string(int(m4l_slices[up_mass[i_plot]]))+" GeV").c_str());
 		sig2_temp->SetLineColor(col12);
 		sig2_temp->SetLineStyle(style12);
 		sig2_temp->DrawNormalized("HIST SAME");
 		
-		bkg1_temp = bkg1->ProjectionY((to_string(i)).c_str(),i,i+1);
+		bkg1_temp = bkg1->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
 		bkg1_temp->SetLineColor(col2);
 		bkg1_temp->SetLineStyle(style2);
 		bkg1_temp->DrawNormalized("HIST SAME");
@@ -386,8 +400,8 @@ void PlotInM4lSlices_2SIG1BKG(TString disc_name,
 		leg->AddEntry(tmp_line1,bkg1_name,"l");
 		leg->Draw();
 		
-		if( i < 10 ) c1->SaveAs("Animations/" + folder + "/" + disc_name + "_0"+to_string(i)+".png");
-		else c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i)+".png");
+		c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i_plot)+".png");
+		c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i_plot)+".pdf");
 	}
 	
 }
@@ -399,13 +413,13 @@ void PlotInM4lSlices_1SIG2BKG(TString disc_name,
 										TString xTitle,  TString folder="", float max = 0.15, int setup = 1)
 {
 	Int_t   m4l_bins1     = 18;
-	Double_t m4l_slices1[] = {110,140,150,160,170,180,190,200,250,300,400,500,600,700,800,900,1000,2000,3000};
+	Double_t m4l_slices1[] = {105,140,150,160,170,180,190,220,250,300,400,500,600,700,800,900,1000,2000,3000};
 	
 	Int_t   m4l_bins2     = 10;
-	Double_t m4l_slices2[] = {110,120,130,140,150,160,170,180,190,200,250};
+	Double_t m4l_slices2[] = {105,120,130,140,150,160,170,180,190,220,250};
 	
 	Int_t   m4l_bins3     = 13;
-	Double_t m4l_slices3[] = {110,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
+	Double_t m4l_slices3[] = {105,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
 	
 	Int_t m4l_bins = m4l_bins1;
 	if(setup == 1) m4l_bins = m4l_bins1;
@@ -417,6 +431,13 @@ void PlotInM4lSlices_1SIG2BKG(TString disc_name,
 	if(setup == 2) for(int i=0; i<= m4l_bins2; i++){ m4l_slices[i]=m4l_slices2[i];}
 	if(setup == 3) for(int i=0; i<= m4l_bins3; i++){ m4l_slices[i]=m4l_slices3[i];}
 	
+	Int_t n_plots;
+	Int_t dn_mass[3];
+	Int_t up_mass[3];
+	if(setup == 1) { n_plots = 3; dn_mass[0]=0;dn_mass[1]=7;dn_mass[2]=10; up_mass[0]=1;up_mass[1]=10;up_mass[2]=18; }
+	if(setup == 2) { n_plots = 1; dn_mass[0]=0; up_mass[0]=3;}
+	if(setup == 3) { n_plots = 3; dn_mass[0]=0;dn_mass[1]=3;dn_mass[2]=5; up_mass[0]=1;up_mass[1]=5;up_mass[2]=13; }
+	
 	TH1D *sig1_temp,*bkg2_temp,*bkg1_temp;
 	TH1 *frame;
 	TLine *tmp_lines1 = new TLine(1,1,1,1);//hack for TLegend
@@ -426,24 +447,24 @@ void PlotInM4lSlices_1SIG2BKG(TString disc_name,
 	TCanvas *c1;
 	c1 = new TCanvas("c1_"+disc_name+folder,"c1_"+disc_name,900,900);
 	
-	for ( int i = 0; i < m4l_bins ; i++ )
+	for ( int i_plot = 0; i_plot < n_plots ; i_plot++ )
 	{
 		c1->Clear();
-		frame = new TH1F("a_"+disc_name+"_"+to_string(i),"",100,0,1);
+		frame = new TH1F("a_"+disc_name+"_"+folder+"_"+to_string(i_plot),"",100,0,1);
 		frame->SetMaximum(max);
 		frame->Draw();
-		sig1_temp = signal1->ProjectionY((to_string(i)).c_str(),i,i+1);
-		frame->SetTitle((to_string(int(m4l_slices[i]))+" - "+to_string(int(m4l_slices[i+1]))).c_str());
+		sig1_temp = signal1->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
+		frame->SetTitle((to_string(int(m4l_slices[dn_mass[i_plot]]))+" - "+to_string(int(m4l_slices[up_mass[i_plot]]))+" GeV").c_str());
 		sig1_temp->SetLineColor(col11);
 		sig1_temp->SetLineStyle(style11);
 		sig1_temp->DrawNormalized("HIST SAME");
 		
-		bkg2_temp = bkg2->ProjectionY((to_string(i)).c_str(),i,i+1);
+		bkg2_temp = bkg2->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
 		bkg2_temp->SetLineColor(col22);
 		bkg2_temp->SetLineStyle(style22);
 		bkg2_temp->DrawNormalized("HIST SAME");
 		
-		bkg1_temp = bkg1->ProjectionY((to_string(i)).c_str(),i,i+1);
+		bkg1_temp = bkg1->ProjectionY((to_string(i_plot)).c_str(),dn_mass[i_plot],up_mass[i_plot]);
 		bkg1_temp->SetLineColor(col21);
 		bkg1_temp->SetLineStyle(style21);
 		bkg1_temp->DrawNormalized("HIST SAME");
@@ -464,10 +485,32 @@ void PlotInM4lSlices_1SIG2BKG(TString disc_name,
 		leg->AddEntry(tmp_line1,bkg1_name,"l");
 		leg->Draw();
 		
-		if( i < 10 ) c1->SaveAs("Animations/" + folder + "/" + disc_name + "_0"+to_string(i)+".png");
-		else c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i)+".png");
+		c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i_plot)+".png");
+		c1->SaveAs("Animations/" + folder + "/" + disc_name + "_"+to_string(i_plot)+".pdf");
 	}
 	
+}
+
+void Plot2D(TString disc_name,
+				TH2F *histo_2d, TString sample_name,
+				TString xTitle,  TString folder="" )
+{
+	Functions *functions = new Functions();
+	functions->ConditionalNormalisation(histo_2d);
+	
+	TCanvas *c1;
+	c1 = new TCanvas("c2D_"+disc_name+sample_name+folder,"c2D_"+disc_name,900,900);
+	histo_2d->GetXaxis()->SetTitle("m_{4l}");
+	histo_2d->GetYaxis()->SetTitle(xTitle);
+	histo_2d->SetTitle(sample_name);
+	histo_2d->Draw("COLZ");
+	histo_2d->GetXaxis()->SetRange(1, 10);
+	if(disc_name == "DBF2jetSM") histo_2d->GetXaxis()->SetRange(1, 16);
+	if(disc_name == "DBF1jetSM") histo_2d->GetXaxis()->SetRange(1, 16);
+	if(disc_name == "DVH2jetSM") histo_2d->GetXaxis()->SetRange(1, 10);
+	
+	c1->SaveAs("Animations/" + folder + "/2Ddistr_" + disc_name + "_" + sample_name + ".png");
+	c1->SaveAs("Animations/" + folder + "/2Ddistr_" + disc_name + "_" + sample_name + ".pdf");
 }
 
 int main( int argc, char *argv[] )
@@ -490,8 +533,6 @@ int main( int argc, char *argv[] )
 	if(only2jEvents) th2f_file = TFile::Open("DVsM4l_2jEvents.root");
 	else th2f_file = TFile::Open("DVsM4l_AllEvents.root");
 	
-   Functions *functions = new Functions();
-	
 	vector<TString> _s_prod;
 	vector<TString> _s_discr;
 	vector<TString> _s_cat;
@@ -501,7 +542,13 @@ int main( int argc, char *argv[] )
 	_s_prod.push_back("VBF");
 	_s_prod.push_back("WH");
 	_s_prod.push_back("ZH");
+	_s_prod.push_back("ggH125");
+	_s_prod.push_back("VBF125");
+	_s_prod.push_back("WH125");
+	_s_prod.push_back("ZH125");
 	_s_prod.push_back("qqZZ");
+	_s_prod.push_back("ggZZ");
+	_s_prod.push_back("ZpX");
 	_s_prod.push_back("gg0MH");
 	_s_prod.push_back("gg0PH");
 	_s_prod.push_back("gg0PL1");
@@ -570,6 +617,7 @@ int main( int argc, char *argv[] )
 		}
 	}
 
+
 	//==================
 	//SM discriminants
 	//==================
@@ -579,43 +627,97 @@ int main( int argc, char *argv[] )
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::SM][Settings::ggH],"ggH",kBlack,1,
 									 "D_{2jet}^{VBF}",
 									 "SM", 0.15, 1);
-	
+	Plot2D("DVBF2jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::SM][Settings::VBF], "VBF",
+			 "D_{2jet}^{VBF}",  "SM" );
+	Plot2D("DVBF2jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::SM][Settings::ggH], "ggH",
+			 "D_{2jet}^{VBF}",  "SM" );
+	Plot2D("DVBF2jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::SM][Settings::qqZZ], "qqZZ",
+			 "D_{2jet}^{VBF}",  "SM" );
+
 	PlotInM4lSlices_1SIG1BKG("DVBF1jetSM",
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF1j][Settings::SM][Settings::VBF],"VBF",kRed,1,
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF1j][Settings::SM][Settings::ggH],"ggH",kBlack,1,
 									 "D_{1jet}^{VBF}",
 									 "SM", 0.20, 1);
-	
+	Plot2D("DVBF1jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF1j][Settings::SM][Settings::VBF], "VBF",
+			 "D_{1jet}^{VBF}",  "SM" );
+	Plot2D("DVBF1jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF1j][Settings::SM][Settings::ggH], "ggH",
+			 "D_{1jet}^{VBF}",  "SM" );
+	Plot2D("DVBF1jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF1j][Settings::SM][Settings::qqZZ], "qqZZ",
+			 "D_{1jet}^{VBF}",  "SM" );
+
 	PlotInM4lSlices_2SIG1BKG("DVH2jetSM",
 									 histos_2D[Settings::on_inclusive][Settings::D_VH][Settings::SM][Settings::ZH],"ZH",kOrange,1,
 									 histos_2D[Settings::on_inclusive][Settings::D_VH][Settings::SM][Settings::WH],"WH",kBlue,1,
 									 histos_2D[Settings::on_inclusive][Settings::D_VH][Settings::SM][Settings::ggH],"ggH",kBlack,1,
 									 "D_{2jet}^{VH}",
 									 "SM", 0.20, 2);
+	Plot2D("DVH2jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VH][Settings::SM][Settings::ZH], "ZH",
+			 "D_{2jet}^{VH}",  "SM" );
+	Plot2D("DVH2jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VH][Settings::SM][Settings::WH], "WH",
+			 "D_{2jet}^{VH}",  "SM" );
+	Plot2D("DVH2jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VH][Settings::SM][Settings::ggH], "ggH",
+			 "D_{2jet}^{VH}",  "SM" );
+	Plot2D("DVH2jetSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VH][Settings::SM][Settings::qqZZ], "qqZZ",
+			 "D_{2jet}^{VH}",  "SM" );
 
-	
+
 	//==================
 	//fa3 discriminants
 	//==================
-	
+
 	PlotInM4lSlices_2SIG1BKG("DVBF2jetBSM",
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa3][Settings::VBF],"VBF",kRed,1,
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa3][Settings::VBF_0MH],"VBF f_{a3}=1",kRed,2,
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa3][Settings::ggH],"ggH",kBlack,1,
 									 "D_{2jet}^{VBF,0-}",
 									 "fa3", 0.15, 3);
-	
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa3][Settings::VBF], "VBF",
+			 "D_{2jet}^{VBF,0-}",  "fa3" );
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa3][Settings::VBF_0MH], "VBF_0MH",
+			 "D_{2jet}^{VBF,0-}",  "fa3" );
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa3][Settings::ggH], "ggH",
+			 "D_{2jet}^{VBF,0-}",  "fa3" );
+
 	PlotInM4lSlices_1SIG1BKG("DBKGDEC",
 									 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa3][Settings::ggH],"ggH",kBlack,1,
 									 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa3][Settings::qqZZ],"qqZZ",kGreen,1,
 									 "D_{bkg}^{dec}",
 									 "fa3", 0.20, 3);
+	Plot2D("DBKGDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa3][Settings::ggH], "ggH",
+			 "D_{bkg}^{dec}",  "fa3" );
+	Plot2D("DBKGDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa3][Settings::qqZZ], "qqZZ",
+			 "D_{bkg}^{dec}",  "fa3" );
 
 	PlotInM4lSlices_1SIG1BKG("DDEC",
 									 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa3][Settings::ggH],"ggH",kBlack,1,
 									 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa3][Settings::gg_0MH],"ggH f_{a3}=1",kBlack,2,
 									 "D_{0-}^{dec}",
 									 "fa3", 0.16, 3);
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa3][Settings::ggH], "ggH",
+			 "D_{0-}^{dec}",  "fa3" );
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa3][Settings::gg_0MH], "gg_0MH",
+			 "D_{0-}^{dec}",  "fa3" );
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa3][Settings::qqZZ], "qqZZ",
+			 "D_{0-}^{dec}",  "fa3" );
 
 	PlotInM4lSlices_1SIG2BKG("DBKGVBFDEC",
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa3][Settings::VBF],"VBF",kRed,1,
@@ -623,12 +725,27 @@ int main( int argc, char *argv[] )
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa3][Settings::qqZZ],"qqZZ",kGreen,1,
 									 "D_{bkg}^{VBF+dec}",
 									 "fa3", 0.25, 3);
-	
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa3][Settings::VBF],"VBF",
+			 "D_{bkg}^{VBF+dec}",  "fa3" );
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa3][Settings::ggH],"ggH",
+			 "D_{bkg}^{VBF+dec}",  "fa3" );
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa3][Settings::qqZZ],"qqZZ",
+			 "D_{bkg}^{VBF+dec}",  "fa3" );
+
 	PlotInM4lSlices_1SIG1BKG("DVBFDEC",
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa3][Settings::VBF],"VBF",kRed,1,
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa3][Settings::VBF_0MH],"VBF f_{a3}=1",kRed,2,
 									 "D_{0-}^{VBF+dec}",
 									 "fa3", 0.25, 3);
+	Plot2D("DVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa3][Settings::VBF], "VBF",
+			 "D_{0-}^{VBF+dec}",  "fa3" );
+	Plot2D("DVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa3][Settings::VBF_0MH], "VBF_0MH",
+			 "D_{0-}^{VBF+dec}",  "fa3" );
 
 	//==================
 	//fa2 discriminants
@@ -640,18 +757,44 @@ int main( int argc, char *argv[] )
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa2][Settings::ggH],"ggH",kBlack,1,
 									 "D_{2jet}^{VBF,0h+}",
 									 "fa2", 0.15, 3);
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa2][Settings::VBF], "VBF",
+			 "D_{2jet}^{VBF,0h+}",  "fa2" );
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa2][Settings::VBF_0PH], "VBF_0PH",
+			 "D_{2jet}^{VBF,0h+}",  "fa2" );
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fa2][Settings::ggH], "ggH",
+			 "D_{2jet}^{VBF,0h+}",  "fa2" );
 
 	PlotInM4lSlices_1SIG1BKG("DBKGDEC",
 									 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa2][Settings::ggH],"ggH",kBlack,1,
 									 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa2][Settings::qqZZ],"qqZZ",kGreen,1,
 									 "D_{bkg}^{dec}",
 									 "fa2", 0.20, 3);
+	
+	Plot2D("DBKGDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa2][Settings::ggH], "ggH",
+			 "D_{bkg}^{dec}",  "fa2" );
+	Plot2D("DBKGDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fa2][Settings::qqZZ], "qqZZ",
+			 "D_{bkg}^{dec}",  "fa2" );
 
 	PlotInM4lSlices_1SIG1BKG("DDEC",
 									 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa2][Settings::ggH],"ggH",kBlack,1,
 									 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa2][Settings::gg_0PH],"ggH f_{a2}=1",kBlack,2,
 									 "D_{0h+}^{dec}",
 									 "fa2", 0.20, 3);
+	
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa2][Settings::ggH], "ggH",
+			 "D_{0h+}^{dec}",  "fa2" );
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa2][Settings::gg_0PH], "gg_0PH",
+			 "D_{0h+}^{dec}",  "fa2" );
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fa2][Settings::qqZZ], "qqZZ",
+			 "D_{0h+}^{dec}",  "fa2" );
 
 	PlotInM4lSlices_1SIG2BKG("DBKGVBFDEC",
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa2][Settings::VBF],"VBF",kRed,1,
@@ -659,36 +802,81 @@ int main( int argc, char *argv[] )
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa2][Settings::qqZZ],"qqZZ",kGreen,1,
 									 "D_{bkg}^{VBF+dec}",
 									 "fa2", 0.25, 3);
+	
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa2][Settings::VBF],"VBF",
+			 "D_{bkg}^{VBF+dec}",  "fa2" );
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa2][Settings::ggH],"ggH",
+			 "D_{bkg}^{VBF+dec}",  "fa2" );
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa2][Settings::qqZZ],"qqZZ",
+			 "D_{bkg}^{VBF+dec}",  "fa2" );
+	
+
 
 	PlotInM4lSlices_1SIG1BKG("DVBFDEC",
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa2][Settings::VBF],"VBF",kRed,1,
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa2][Settings::VBF_0PH],"VBF f_{a2}=1",kRed,2,
-									 "D_{0hp}^{VBF+dec}",
+									 "D_{0h+}^{VBF+dec}",
 									 "fa2", 0.25, 3);
 	
+	Plot2D("DVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa2][Settings::VBF], "VBF",
+			 "D_{0h+}^{VBF+dec}",  "fa2" );
+	Plot2D("DVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa2][Settings::VBF_0PH], "VBF_0PH",
+			 "D_{0h+}^{VBF+dec}",  "fa2" );
+
 	//==================
 	//fL1 discriminants
 	//==================
-	
+
 	PlotInM4lSlices_2SIG1BKG("DVBF2jetBSM",
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fL1][Settings::VBF],"VBF",kRed,1,
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fL1][Settings::VBF_0L1],"VBF f_{#Lambda_{1}}=1",kRed,2,
 									 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fL1][Settings::ggH],"ggH",kBlack,1,
 									 "D_{2jet}^{VBF,#Lambda_{1}}",
 									 "fL1", 0.15, 3);
-	
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fL1][Settings::VBF], "VBF",
+			 "D_{2jet}^{VBF,#Lambda_{1}}",  "fL1" );
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fL1][Settings::VBF_0L1], "VBF_0L1",
+			 "D_{2jet}^{VBF,#Lambda_{1}}",  "fL1" );
+	Plot2D("DVBF2jetBSM",
+			 histos_2D[Settings::on_inclusive][Settings::D_VBF2j][Settings::fL1][Settings::ggH], "ggH",
+			 "D_{2jet}^{VBF,#Lambda_{1}}",  "fL1" );
+
 	PlotInM4lSlices_1SIG1BKG("DBKGDEC",
 									 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fL1][Settings::ggH],"ggH",kBlack,1,
 									 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fL1][Settings::qqZZ],"qqZZ",kGreen,1,
 									 "D_{bkg}^{dec}",
 									 "fL1", 0.20, 3);
 	
+	Plot2D("DBKGDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fL1][Settings::ggH], "ggH",
+			 "D_{bkg}^{dec}",  "fL1" );
+	Plot2D("DBKGDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_BKG_DEC][Settings::fL1][Settings::qqZZ], "qqZZ",
+			 "D_{bkg}^{dec}",  "fL1" );
+
 	PlotInM4lSlices_1SIG1BKG("DDEC",
 									 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fL1][Settings::ggH],"ggH",kBlack,1,
 									 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fL1][Settings::gg_0L1],"ggH f_{#Lambda_{1}}=1",kBlack,2,
 									 "D_{#Lambda_{1}}^{dec}",
 									 "fL1", 0.25, 3);
 	
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fL1][Settings::ggH], "ggH",
+			 "D_{#Lambda_{1}}^{dec}",  "fL1" );
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fL1][Settings::gg_0L1], "gg_0L1",
+			 "D_{#Lambda_{1}}^{dec}",  "fL1" );
+	Plot2D("DDEC",
+			 histos_2D[Settings::on_untagged][Settings::D_DEC][Settings::fL1][Settings::qqZZ], "qqZZ",
+			 "D_{#Lambda_{1}}^{dec}",  "fL1" );
+
 	PlotInM4lSlices_1SIG2BKG("DBKGVBFDEC",
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fL1][Settings::VBF],"VBF",kRed,1,
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fL1][Settings::ggH],"ggH",kBlack,1,
@@ -696,9 +884,27 @@ int main( int argc, char *argv[] )
 									 "D_{bkg}^{VBF+dec}",
 									 "fL1", 0.25, 3);
 	
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fL1][Settings::VBF],"VBF",
+			 "D_{bkg}^{VBF+dec}",  "fL1" );
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fL1][Settings::ggH],"ggH",
+			 "D_{bkg}^{VBF+dec}",  "fL1" );
+	Plot2D("DBKGVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fL1][Settings::qqZZ],"qqZZ",
+			 "D_{bkg}^{VBF+dec}",  "fL1" );
+	
+
 	PlotInM4lSlices_1SIG1BKG("DVBFDEC",
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fL1][Settings::VBF],"VBF",kRed,1,
 									 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fL1][Settings::VBF_0L1],"VBF f_{#Lambda_{1}}=1",kRed,2,
 									 "D_{#Lambda_{1}}^{VBF+dec}",
 									 "fL1", 0.25, 3);
+	
+	Plot2D("DVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fL1][Settings::VBF], "VBF",
+			 "D_{#Lambda_{1}}^{VBF+dec}",  "fL1" );
+	Plot2D("DVBFDEC",
+			 histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fL1][Settings::VBF_0L1], "VBF_0L1",
+			 "D_{#Lambda_{1}}^{VBF+dec}",  "fL1" );
 }

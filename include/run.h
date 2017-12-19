@@ -24,11 +24,17 @@
 
 void ResetHistos(TProfile *p);
 void WriteHistos(TString sample);
+void DoZXLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void DoVBFLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void DoggHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoVBF125Loop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoggH125Loop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void DoqqZZLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoggZZLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void DoWHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void DoZHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoWH125Loop(Analyzer *analyzer, float lumi, bool only2jEvents);
+void DoZH125Loop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void Dogg0MHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void Dogg0PHLoop(Analyzer *analyzer, float lumi, bool only2jEvents);
 void Dogg0PL1Loop(Analyzer *analyzer, float lumi, bool only2jEvents);
@@ -40,6 +46,14 @@ TString folder_name = "root://lxcms03//data3/Higgs/171005/";
 //TString folder_name = "root://lxcms03//data3/Higgs/170623/";
 //TString folder_name = "root://lxcms03//data3/Higgs/170222/";
 TString file_name   = "/ZZ4lAnalysis.root";
+
+//==================================================================
+//
+//    DATA FOR Z+X
+//
+//==================================================================
+
+TString Data = folder_name + "AllData" + file_name;
 
 //==================================================================
 //
@@ -127,6 +141,19 @@ TString ggTo2e2mu_MCFM  = folder_name + "ggTo2e2mu_0PMH125_MCFM701" + file_name;
 
 TString qqZZ = folder_name + "ZZTo4l" + file_name;
 TString qqZZext = folder_name + "ZZTo4lext" + file_name;
+
+//==================================================================
+//
+//    ggZZ BACKGROUND
+//
+//==================================================================
+
+TString ggZZ4e      = folder_name + "ggTo4e_Contin_MCFM701" + file_name;
+TString ggZZ4mu     = folder_name + "ggTo4mu_Contin_MCFM701" + file_name;
+TString ggZZ4tau    = folder_name + "ggTo4tau_Contin_MCFM701" + file_name;
+TString ggZZ2e2mu   = folder_name + "ggTo2e2mu_Contin_MCFM701" + file_name;
+TString ggZZ2e2tau  = folder_name + "ggTo2e2tau_Contin_MCFM701" + file_name;
+TString ggZZ2mu2tau = folder_name + "ggTo2mu2tau_Contin_MCFM701" + file_name;
 
 //==================================================================
 //

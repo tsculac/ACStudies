@@ -7,5 +7,9 @@ Categorisation
 DumpPlots
 EfficiencyVsCut
 run
+ProduceSplines
+DataMC
+DataMCPlots/
+Slices
 Presentation/
 *.pdf

@@ -164,13 +164,13 @@ void Analyzer::RebinHistos()
 {
 	// Redefine M4l binning for WH and ZH
 	Int_t   m4l_bins     = 18;
-	Double_t m4l_slices[] = {110,140,150,160,170,180,190,200,250,300,400,500,600,700,800,900,1500,2500,3500};
+	Double_t m4l_slices[] = {105,140,150,160,170,180,190,220,250,300,400,500,600,700,800,900,1500,2500,3500};
 	
 	Int_t   m4l_bins2     = 10;
-	Double_t m4l_slices2[] = {110,125,130,140,150,160,170,180,190,200,250};
+	Double_t m4l_slices2[] = {105,125,130,140,150,160,170,180,190,220,250};
 	
 	Int_t   m4l_bins3     = 13;
-	Double_t m4l_slices3[] = {110,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
+	Double_t m4l_slices3[] = {105,140,180,220,300,400,500,600,700,800,1500,2000,3000,4000};
 	
 	delete p2j, p1j, histos_1D[Settings::M4l_allevents],histos_1D[Settings::M4l_2j_events],histos_1D[Settings::M4l_1j_events], histos_1D[Settings::M4l_DVH], histos_1D[Settings::M4l_DVBF2j];
 	
@@ -240,19 +240,32 @@ void Analyzer::RebinHistosSplinesqq()
 	histos_1D[Settings::M4l_DVH]       = new TH1F("DVHVsM4l_v3", "DVHVsM4l",m4l_binsqq, m4l_slicesqq);
 }
 
+void Analyzer::LoadFakeRates()
+{
+	// Z+X SS factors
+	// FIXME: recompute this for Run II, OS/SS ratio taken when computing fake rates in SS method
+	_fs_ROS_SS.push_back(1.22);//4mu
+	_fs_ROS_SS.push_back(0.97);//4e
+	_fs_ROS_SS.push_back(1.30);//2e2mu
+	_fs_ROS_SS.push_back(0.98);//2mu2e
+	
+	TString FR_file_name = "./FakeRate/FakeRate_SS_Moriond368.root";
+	FR = new FakeRates(FR_file_name);
+}
+
 void Analyzer::LoadConstants()
 {
-	TString folder_name = "cConstants_update";
+	TString folder_name = "cConstants";
 	TString folder2_name = "cConstants";
 	
 	
-	VBF1j_file   = new TFile(folder_name + "/SmoothKDConstant_m4l_DjVBF13TeV.root");
+	VBF1j_file   = new TFile(folder_name + "/SmoothKDConstant_m4l_DjVBF_13TeV.root");
 	VBF1j_spline = (TSpline3*)VBF1j_file->Get("sp_gr_varReco_Constant_Smooth");
-	VBF2j_file = new TFile(folder_name + "/SmoothKDConstant_m4l_DjjVBF13TeV.root");
+	VBF2j_file = new TFile(folder_name + "/SmoothKDConstant_m4l_DjjVBF_13TeV.root");
 	VBF2j_spline = (TSpline3*)VBF2j_file->Get("sp_gr_varReco_Constant_Smooth");
-	WH_file = new TFile(folder_name + "/SmoothKDConstant_m4l_DjjWH13TeV.root");
+	WH_file = new TFile(folder_name + "/SmoothKDConstant_m4l_DjjWH_13TeV.root");
 	WH_spline = (TSpline3*)WH_file->Get("sp_gr_varReco_Constant_Smooth");
-	ZH_file = new TFile(folder_name + "/SmoothKDConstant_m4l_DjjZH13TeV.root");
+	ZH_file = new TFile(folder_name + "/SmoothKDConstant_m4l_DjjZH_13TeV.root");
 	ZH_spline = (TSpline3*)ZH_file->Get("sp_gr_varReco_Constant_Smooth");
 	DBKG_file_4e = new TFile(folder_name + "/SmoothKDConstant_m4l_Dbkgkin_4e13TeV.root");
 	DBKG_spline_4e = (TSpline3*)DBKG_file_4e->Get("sp_gr_varTrue_Constant_Smooth");
@@ -309,8 +322,7 @@ void Analyzer::Loop(bool only2jEvents)
 	hCounters = (TH1F*)inputfile->Get("ZZTree/Counters");
 	gen_sum_weights = (Long64_t)hCounters->GetBinContent(40);
 	
-	
-	
+	Int_t _current_final_state;
 	Long64_t nbytes = 0, nb = 0;
 	for (Long64_t jentry=0; jentry<nentries;jentry++) {//Loop over events
 		Long64_t ientry = LoadTree(jentry);
@@ -323,6 +335,7 @@ void Analyzer::Loop(bool only2jEvents)
 		if ( input_file_name.Contains("VBFH3000")) _xsec = 0.0008253;
 		else _xsec = xsec;
 		
+		//=================================
 		// K factors
 		//=================================
 		_k_factor = 1;
@@ -337,9 +350,20 @@ void Analyzer::Loop(bool only2jEvents)
 		//================================= _k_factor = calculate_K_factor(input_file_name);
 		
 		// Final event weight
-		_event_weight = (_k_factor * overallEventWeight) / gen_sum_weights; //removed xsec
-		//_event_weight = (_lumi * 1000 *_k_factor * _xsec * overallEventWeight) / gen_sum_weights;
-		//cout << "weight=" << _event_weight << "   lumi="<< _lumi << "  xsec="<< xsec<< "   k_factor=" << _k_factor<< "   overalEveW=" << overallEventWeight << endl;
+		//_event_weight = (_k_factor * overallEventWeight) / gen_sum_weights; //removed xsec
+		_event_weight = (_lumi * 1000 *_k_factor * _xsec * overallEventWeight) / gen_sum_weights;
+		if ( input_file_name.Contains("Data"))
+		{
+			if( Z2Flav < 0) continue;
+			if( Z1Flav == -169 && Z2Flav == 169 ) _current_final_state = 0;
+			if( Z1Flav == -121 && Z2Flav == 121 ) _current_final_state = 1;
+			if( Z1Flav == -121 && Z2Flav == 169 ) _current_final_state = 2;
+			if( Z1Flav == -169 && Z2Flav == 121 ) _current_final_state = 3;
+			
+
+			_event_weight = _fs_ROS_SS.at(_current_final_state)*FR->GetFakeRate(LepPt->at(2),LepEta->at(2),LepLepId->at(2))*FR->GetFakeRate(LepPt->at(3),LepEta->at(3),LepLepId->at(3));
+		}
+		//cout << "weight=" << _event_weight << "   lumi="<< _lumi << "  xsec="<< _xsec<< "   k_factor=" << _k_factor<< "   overalEveW=" << overallEventWeight << endl;
 		
 		
 		//=================================
@@ -376,7 +400,7 @@ void Analyzer::Loop(bool only2jEvents)
 		// CATEGORISATION DISCRIMINANTS
 		//=================================
 		
-		if (p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF2j_ME = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal);
+		if ( nCleanedJetsPt30>=2 && p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF2j_ME = 1./(1.+ cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal/p_JJVBF_SIG_ghv1_1_JHUGen_JECNominal);
 		else DVBF2j_ME = -1;
 		
 		D_0MH_VBF = (g_VBF_g4 * g_VBF_g4 * p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal) /( g_VBF_g4 * g_VBF_g4 * p_JJVBF_SIG_ghv4_1_JHUGen_JECNominal + cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal);
@@ -384,14 +408,14 @@ void Analyzer::Loop(bool only2jEvents)
 		D_0L1_VBF = (g_VBF_gL1 * g_VBF_gL1 * p_JJVBF_SIG_ghv1prime2_1E4_JHUGen_JECNominal) /( g_VBF_gL1 * g_VBF_gL1 * p_JJVBF_SIG_ghv1prime2_1E4_JHUGen_JECNominal + cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal);
 		D_0L1Zgs_VBF = (g_VBF_gL1Zs * g_VBF_gL1Zs * p_JJVBF_SIG_ghza1prime2_1E4_JHUGen_JECNominal) /( g_VBF_gL1Zs * g_VBF_gL1Zs * p_JJVBF_SIG_ghza1prime2_1E4_JHUGen_JECNominal + cConstant_VBF2j*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal);
 		
-		if (p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
+		if (nCleanedJetsPt30>=1 && p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal != 0) DVBF1j_ME = 1./(1.+ cConstant_VBF1j*p_JQCD_SIG_ghg2_1_JHUGen_JECNominal/(p_JVBF_SIG_ghv1_1_JHUGen_JECNominal*pAux_JVBF_SIG_ghv1_1_JHUGen_JECNominal));
 		else DVBF1j_ME = -1;
 		
 		
-		if (p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal != 0) DZH_ME = 1./(1.+ cConstant_ZH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal*p_HadZH_mavjj_true_JECNominal)/(p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal));
+		if (nCleanedJetsPt30>=2 && p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal != 0) DZH_ME = 1./(1.+ cConstant_ZH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal*p_HadZH_mavjj_true_JECNominal)/(p_HadZH_SIG_ghz1_1_JHUGen_JECNominal*p_HadZH_mavjj_JECNominal));
 		else DZH_ME = -1;
 		
-		if (p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*p_HadWH_mavjj_JECNominal != 0) DWH_ME = 1./(1.+ cConstant_WH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal*p_HadWH_mavjj_true_JECNominal)/(p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*p_HadWH_mavjj_JECNominal));
+		if (nCleanedJetsPt30>=2 && p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*p_HadWH_mavjj_JECNominal != 0) DWH_ME = 1./(1.+ cConstant_WH*(p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal*p_HadWH_mavjj_true_JECNominal)/(p_HadWH_SIG_ghw1_1_JHUGen_JECNominal*p_HadWH_mavjj_JECNominal));
 		else DWH_ME = -1;
 		
 		D_0MH_WH = (g_WH_g4 * g_WH_g4 * p_HadWH_SIG_ghw4_1_JHUGen_JECNominal) /( g_WH_g4 * g_WH_g4 * p_HadWH_SIG_ghw4_1_JHUGen_JECNominal + cConstant_WH*p_JJQCD_SIG_ghg2_1_JHUGen_JECNominal);
@@ -475,7 +499,7 @@ void Analyzer::Loop(bool only2jEvents)
 		}
 		
 		//VBF2j-tagged fa3
-		if (nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) && (DVBF2j_ME > 0.5 ||  D_0MH_VBF > 0.5))
+		if ((DVBF2j_ME > 0.5 ||  D_0MH_VBF > 0.5))//nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) &&
 		{
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa3]->Fill(ZZMass,D_BKG_VBF_DEC,_event_weight);
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa3]->Fill(ZZMass,D_0MH_VBF_DEC,_event_weight);
@@ -489,7 +513,7 @@ void Analyzer::Loop(bool only2jEvents)
 		}
 		
 		//VBF2j-tagged fa2
-		if (nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) && (DVBF2j_ME > 0.5 ||  D_0PH_VBF > 0.5))
+		if ((DVBF2j_ME > 0.5 ||  D_0PH_VBF > 0.5))//nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) &&
 		{
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fa2]->Fill(ZZMass,D_BKG_VBF_DEC,_event_weight);
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fa2]->Fill(ZZMass,D_0PH_VBF_DEC,_event_weight);
@@ -503,7 +527,7 @@ void Analyzer::Loop(bool only2jEvents)
 		}
 		
 		//VBF2j-tagged fL1
-		if (nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) && (DVBF2j_ME > 0.5 ||  D_0L1_VBF > 0.5))
+		if ((DVBF2j_ME > 0.5 ||  D_0L1_VBF > 0.5))//nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) &&
 		{
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fL1]->Fill(ZZMass,D_BKG_VBF_DEC,_event_weight);
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fL1]->Fill(ZZMass,D_0L1_VBF_DEC,_event_weight);
@@ -517,7 +541,7 @@ void Analyzer::Loop(bool only2jEvents)
 		}
 		
 		//VBF2j-tagged fL1Zgs
-		if (nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) && (DVBF2j_ME > 0.5 ||  D_0L1Zgs_VBF > 0.5))
+		if ((DVBF2j_ME > 0.5 ||  D_0L1Zgs_VBF > 0.5))//nExtraLep==0 && (((nCleanedJetsPt30==2||nCleanedJetsPt30==3)&&nCleanedJetsPt30BTagged_bTagSF<=1)||(nCleanedJetsPt30>=4&&nCleanedJetsPt30BTagged_bTagSF==0)) &&
 		{
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_BKG_VBF_DEC][Settings::fL1Zgs]->Fill(ZZMass,D_BKG_VBF_DEC,_event_weight);
 			histos_2D[Settings::on_VBF_2j_tagged][Settings::D_VBF_DEC][Settings::fL1Zgs]->Fill(ZZMass,D_0L1Zgs_VBF_DEC,_event_weight);
@@ -565,7 +589,7 @@ void Analyzer::Loop(bool only2jEvents)
 		if( DVBF2j_ME > 0.5 && nCleanedJetsPt30 >= 2) histos_1D[Settings::M4l_DVBF2j]->Fill(ZZMass, _event_weight);
 		if( DVBF1j_ME > 0.5 && nCleanedJetsPt30 == 1) histos_1D[Settings::M4l_DVBF1j]->Fill(ZZMass, _event_weight);
 		if( DVH_ME > 0.5 && nCleanedJetsPt30 >= 2) histos_1D[Settings::M4l_DVH]->Fill(ZZMass, _event_weight);
-		
+
 	}//Kraj loop-a po eventovima
 	
 	VBF1j_file->Close();
@@ -577,8 +601,6 @@ void Analyzer::Loop(bool only2jEvents)
 	g_Decay_g4_file->Close();
 	g_Decay_L1_file->Close();
 	g_Decay_L1Zgs_file->Close();
-	
-	cout << "[INFO] File " << input_file_name << " is processed." << endl;
 }
 
 
@@ -848,18 +870,18 @@ float Analyzer::GetDBKGcConstant(Short_t Z1Flav, Short_t Z2Flav, float ZZMass )
 	
 	if ( Z1Flav == -121 )
 	{
-		if ( Z2Flav == -121 )
+		if ( abs(Z2Flav) == 121 )
 			cConstant = DBKG_spline_4e->Eval(ZZMass); //4e final state
-		else if ( Z2Flav == -169 )
+		else if ( abs(Z2Flav) == 169 )
 			cConstant = DBKG_spline_2e2mu->Eval(ZZMass); // 2e2mu
 		else
 			cerr << "[ERROR] " << endl;
 	}
 	else if ( Z1Flav == -169 )
 	{
-		if ( Z2Flav == -121 )
+		if ( abs(Z2Flav) == 121 )
 			cConstant = DBKG_spline_2e2mu->Eval(ZZMass); //2mu2e
-		else if ( Z2Flav == -169 )
+		else if ( abs(Z2Flav) == 169 )
 			cConstant = DBKG_spline_4mu->Eval(ZZMass); //4mu
 		else
 			cerr << "[ERROR] " << endl;
